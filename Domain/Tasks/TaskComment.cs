@@ -9,5 +9,6 @@ namespace Domain.Tasks
         public DateTime CreatedAt { get; set; }
 
         public string SenderId { get; set; } = null!;
+        public int TaskId { get; set; }
     }
 }

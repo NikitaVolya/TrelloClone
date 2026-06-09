@@ -13,11 +13,11 @@ namespace MVC.Controllers
 {
     public class ProjectController : Controller
     {
-        private static readonly List<Project> MockProjects = new List<Project>
+        public static readonly List<Project> MockProjects = new List<Project>
         {
-            new Project { Id = 1, Title = "Project A", Description = "Description of Project A", Boards = new List<Board>(){ new Board { Id = 1, Title = "Board 1"  },{ new Board { Id = 2, Title = "Board 2" } } } },
-            new Project { Id = 2, Title = "Project B", Description = "Description of Project B", Boards = new List<Board>(){ new Board { Id = 2, Title = "Board 2" }, new Board { Id = 3, Title = "Board 3" } } },
-            new Project { Id = 3, Title = "Project C", Description = "Description of Project C", Boards = new List<Board>(){ new Board { Id = 3, Title = "Board 3" }, new Board { Id = 4, Title = "Board 4" } } }
+            new Project { Id = 1, Title = "Project A", Description = "Description of Project A", CreatedAt = DateTime.Now.AddDays(-10), Boards = new List<Board>(){ new Board { Id = 1, Title = "Board 1", CreatedAt = DateTime.Now.AddDays(-8)  }, new Board { Id = 2, Title = "Board 2", CreatedAt = DateTime.Now.AddDays(-5) } } },
+            new Project { Id = 2, Title = "Project B", Description = "Description of Project B", CreatedAt = DateTime.Now.AddDays(-7), Boards = new List<Board>(){ new Board { Id = 2, Title = "Board 2", CreatedAt = DateTime.Now.AddDays(-5) }, new Board { Id = 3, Title = "Board 3", CreatedAt = DateTime.Now.AddDays(-3) } } },
+            new Project { Id = 3, Title = "Project C", Description = "Description of Project C", CreatedAt = DateTime.Now.AddDays(-2), Boards = new List<Board>(){ new Board { Id = 3, Title = "Board 3", CreatedAt = DateTime.Now.AddDays(-3) }, new Board { Id = 4, Title = "Board 4", CreatedAt = DateTime.Now.AddDays(-1) } } }
         };
         public ActionResult Index()
         {
@@ -32,8 +32,11 @@ namespace MVC.Controllers
             return View(project);
         }
 
+        [HttpPost]
         public ActionResult Create(Project newProject) {
             newProject.Id = MockProjects.Count + 1;
+            newProject.CreatedAt = DateTime.Now;
+            newProject.Boards = new List<Board>();
             MockProjects.Add(newProject);
             return RedirectToAction("Index");
         }
