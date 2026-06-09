@@ -17,5 +17,7 @@ namespace DAL.Repositories.Interfaces
         Task AddAsync(Invitation invitation);
 
         void Delete(Invitation invitation);
+
+        void Update(Invitation invitation);
     }
 }

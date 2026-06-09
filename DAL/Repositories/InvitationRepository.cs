@@ -47,5 +47,10 @@ namespace DAL.Repositories
         {
             _context.Invitations.Remove(invitation);
         }
+
+        public void Update(Invitation invitation)
+        {
+            _context.Invitations.Update(invitation);
+        }
     }
 }
