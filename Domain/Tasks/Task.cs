@@ -18,5 +18,6 @@ namespace Domain.Tasks
         public Column? Column { get; set; }
 
         public List<TaskAssignee> Assignees { get; set; } = new List<TaskAssignee>();
+        public List<TaskComment> Comments { get; set; } = new List<TaskComment>();
     }
 }
