@@ -1,0 +1,20 @@
+﻿@model Domain.Projects.Project
+
+@{
+}
+<div class="container mt-4">
+	<h2>Назва проекту: @Model.Title</h2>
+	<h4>Опис проекту: @Model.Description</h4>
+	<h4>Список дошок:</h4>
+	<ol>
+		@foreach (var board in Model.Boards)
+		{
+			<li class="h5">
+			<div class="card-body">
+				<h5>Назва: @board.Title</h5>
+			</div>
+			</li>
+		}
+	</ol>
+	
+</div>

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Domain.Projects.Project>
+@{
+    ViewData["Title"] = "Projects Page";
+}
+<div class="container mt-4">
+    <h2>Мої проекти</h2>
+    <div>
+        <div>
+            <form asp-action="Create" method="post" class="row g-2">
+                <h4>Створити проект</h4>
+                <input type="text" name="Title" class="form-control" placeholder="Назва проекту" />
+                <input type="text" name="Description" class="form-control" placeholder="Опис проекту" />
+                <button type="submit" class="btn btn-primary mt-2">Створити</button>
+            </form>
+        </div>
+        <div class="row">
+            @foreach (var project in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@project.Title</h5>
+                            <p class="card-text">@project.Description</p>
+                            <a asp-controller="Project" asp-action="Detail" asp-route-id=@project.Id class="btn btn-primary">Деталі</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
