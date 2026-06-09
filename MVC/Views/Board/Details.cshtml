@@ -36,11 +36,11 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card-body" style="min-height: 200px;">
+                    <div class="card-body column-drop-zone" data-column-id="@column.Id" style="min-height: 200px;">
                         @foreach (var task in Model.Tasks.Where(t => t.ColumnId == column.Id))
                         {
-                            <div class="card mb-2 shadow-sm" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#taskModal-@task.Id">
-                                <div class="card-body p-2">
+                            <div class="card mb-2 shadow-sm task-card" draggable="true" data-task-id="@task.Id" style="cursor: move;">
+                                <div class="card-body p-2" data-bs-toggle="modal" data-bs-target="#taskModal-@task.Id" style="cursor: pointer;">
                                     <h6 class="mb-1">@task.Name</h6>
                                     @if (task.Deadline.HasValue)
                                     {
@@ -243,3 +243,64 @@
         </div>
     </div>
 </div>
+
+<script>
+    let draggedTask = null;
+
+    // Drag start
+    document.querySelectorAll('.task-card').forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            draggedTask = this;
+            this.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        });
+
+        card.addEventListener('dragend', function(e) {
+            this.style.opacity = '1';
+        });
+    });
+
+    // Drop zones
+    document.querySelectorAll('.column-drop-zone').forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.style.backgroundColor = '#f0f0f0';
+        });
+
+        zone.addEventListener('dragleave', function(e) {
+            this.style.backgroundColor = '';
+        });
+
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.backgroundColor = '';
+
+            if (draggedTask) {
+                const taskId = draggedTask.dataset.taskId;
+                const newColumnId = this.dataset.columnId;
+
+                // Move task via AJAX
+                fetch('/Task/Move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${taskId}&columnId=${newColumnId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        // Reload page to show updated state
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Помилка при переміщенні таски');
+                });
+            }
+        });
+    });
+</script>

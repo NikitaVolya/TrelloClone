@@ -129,6 +129,17 @@ namespace MVC.Controllers
             }
 
             task.ColumnId = columnId;
+
+            var board = BoardController.MockBoards.FirstOrDefault(b => b.Id == task.BoardId);
+            if (board != null)
+            {
+                var boardTask = board.Tasks.FirstOrDefault(t => t.Id == id);
+                if (boardTask != null)
+                {
+                    boardTask.ColumnId = columnId;
+                }
+            }
+
             return Ok(new { message = "Таска переміщена", task });
         }
 
