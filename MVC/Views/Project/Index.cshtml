@@ -4,29 +4,52 @@
 }
 <div class="container mt-4">
     <h2>Мої проекти</h2>
-    <div>
-        <div>
-            <form asp-action="Create" method="post" class="row g-2">
-                <h4>Створити проект</h4>
-                <input type="text" name="Title" class="form-control" placeholder="Назва проекту" />
-                <input type="text" name="Description" class="form-control" placeholder="Опис проекту" />
-                <button type="submit" class="btn btn-primary mt-2">Створити</button>
-            </form>
-        </div>
-        <div class="row">
-            @foreach (var project in Model)
-            {
-                <div class="col-md-4">
-                    <a asp-controller="Project" asp-action="Detail" asp-route-id="@project.Id" class="text-decoration-none">
-                        <div class="card h-100" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
-                            <div class="card-body">
-                                <h5 class="card-title text-dark">@project.Title</h5>
-                                <p class="card-text text-muted">@project.Description</p>
-                            </div>
+    <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+        <i class="bi bi-plus-circle"></i> Створити проект
+    </button>
+
+    <div class="row">
+        @foreach (var project in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <a asp-controller="Project" asp-action="Detail" asp-route-id="@project.Id" class="text-decoration-none">
+                    <div class="card h-100" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark">@project.Title</h5>
+                            <p class="card-text text-muted">@project.Description</p>
+                            <small class="text-muted">Створено: @project.CreatedAt.ToString("dd.MM.yyyy")</small>
                         </div>
-                    </a>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Create Project Modal -->
+<div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true" style="margin-top: 135px;">
+    <div class="modal-dialog" style="margin-left: 130px; margin-right: auto;">
+        <div class="modal-content">
+            <form asp-action="Create" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createProjectModalLabel">Створити новий проект</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            }
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="projectTitle" class="form-label">Назва проекту</label>
+                        <input type="text" class="form-control" id="projectTitle" name="Title" placeholder="Введіть назву проекту" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="projectDescription" class="form-label">Опис проекту</label>
+                        <textarea class="form-control" id="projectDescription" name="Description" rows="3" placeholder="Введіть опис проекту"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Створити</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

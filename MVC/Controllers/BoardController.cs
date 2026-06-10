@@ -17,9 +17,9 @@ namespace MVC.Controllers
                 ProjectId = 1,
                 Columns = new List<Column>
                 {
-                    new Column { Id = 1, Name = "To Do", hexColor = "#FF5733", BoardId = 1 },
-                    new Column { Id = 2, Name = "In Progress", hexColor = "#33FF57", BoardId = 1 },
-                    new Column { Id = 3, Name = "Done", hexColor = "#3357FF", BoardId = 1 }
+                    new Column { Id = 1, Name = "To Do", hexColor = "#FF5733", BoardId = 1, Order = 0 },
+                    new Column { Id = 2, Name = "In Progress", hexColor = "#33FF57", BoardId = 1, Order = 1 },
+                    new Column { Id = 3, Name = "Done", hexColor = "#3357FF", BoardId = 1, Order = 2 }
                 },
                 Tasks = new List<Domain.Tasks.Task>
                 {
@@ -35,8 +35,8 @@ namespace MVC.Controllers
                 ProjectId = 1,
                 Columns = new List<Column>
                 {
-                    new Column { Id = 4, Name = "Backlog", hexColor = "#FFC300", BoardId = 2 },
-                    new Column { Id = 5, Name = "Active", hexColor = "#DAF7A6", BoardId = 2 }
+                    new Column { Id = 4, Name = "Backlog", hexColor = "#FFC300", BoardId = 2, Order = 0 },
+                    new Column { Id = 5, Name = "Active", hexColor = "#DAF7A6", BoardId = 2, Order = 1 }
                 },
                 Tasks = new List<Domain.Tasks.Task>()
             }
@@ -51,6 +51,8 @@ namespace MVC.Controllers
             {
                 return NotFound(new { message = "Дошка не знайдена" });
             }
+
+            board.Columns = board.Columns.OrderBy(c => c.Order).ToList();
 
             ViewBag.Comments = TaskController.MockComments;
 

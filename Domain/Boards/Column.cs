@@ -17,6 +17,8 @@ namespace Domain.Boards
         public int BoardId { get; set; }
         public Board Board { get; set; }
 
+        public int Order { get; set; }
+
         public List<Tasks.Task> Tasks { get; set; } = new List<Tasks.Task>();
     }
 }
