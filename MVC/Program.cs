@@ -1,4 +1,8 @@
 using DAL.Context;
+using DAL.Repositories;
+using DAL.Repositories.Interfaces;
+using Domain.Common;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -14,6 +18,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(
                 builder.Configuration.GetConnectionString("DefaultConnection")
             );
     });
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+});
+
 
 var app = builder.Build();
 
@@ -35,6 +52,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Register}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
