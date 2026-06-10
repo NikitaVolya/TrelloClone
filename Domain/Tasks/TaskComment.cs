@@ -1,5 +1,7 @@
 ﻿
 
+using Domain.Common;
+
 namespace Domain.Tasks
 {
     public class TaskComment
@@ -8,6 +10,10 @@ namespace Domain.Tasks
         public string Text { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
 
-        public string SenderId { get; set; } = null!;
+        public int TaskId { get; set; }
+        public Task Task { get; set; }
+
+        public string? SenderId { get; set; }
+        public ApplicationUser? Sender { get; set; }
     }
 }

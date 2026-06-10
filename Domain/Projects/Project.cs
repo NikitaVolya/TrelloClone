@@ -1,6 +1,7 @@
 ﻿
 
 using Domain.Boards;
+using Domain.Common;
 
 namespace Domain.Projects
 {
@@ -11,9 +12,12 @@ namespace Domain.Projects
         public string? Description { get; set; }
 
         public string OwnerId { get; set; } = null!;
+        public ApplicationUser Owner { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public List<Board> Boards { get; set; } = new List<Board>();
+        public List<ProjectMember> Members { get; set; } = new List<ProjectMember>();
+        public List<Invitation> Invitations { get; set; } = new List<Invitation>();
     }
 }
