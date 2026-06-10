@@ -1,70 +1,54 @@
 ﻿@model MVC.Models.Account.LoginViewModel
-
 @{
     Layout = null;
 }
-
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
-    <title>Вхід</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
+    <meta charset="utf-8" />
+    <title>Вхід — TrelloClon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/account.css" />
 </head>
-
 <body>
-
     <div class="auth-container">
-
         <div class="auth-card">
 
-            <h1>Ласкаво просимо</h1>
+            <div class="auth-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="#5865f2" />
+                    <rect x="4" y="8" width="7" height="16" rx="2" fill="white" />
+                    <rect x="13" y="8" width="7" height="10" rx="2" fill="white" opacity=".85" />
+                    <rect x="22" y="8" width="6" height="13" rx="2" fill="white" opacity=".65" />
+                </svg>
+                <span class="auth-logo-name">TaskFlow</span>
+            </div>
 
-            <p class="text-muted">
-                Увійдіть у свій акаунт
-            </p>
+            <h1>Ласкаво просимо</h1>
+            <p class="text-muted">Увійдіть у свій акаунт</p>
 
             <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="mb-3">
-                    <input asp-for="Email"
-                           class="form-control"
-                           placeholder="Email">
+                    <input asp-for="Email" class="form-control" placeholder="Email" autocomplete="email">
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
-
                 <div class="mb-3">
-                    <input asp-for="Password"
-                           class="form-control"
-                           placeholder="Пароль">
+                    <input asp-for="Password" class="form-control" placeholder="Пароль" autocomplete="current-password">
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-
-                <div class="form-check mb-3">
-                    <input asp-for="RememberMe"
-                           class="form-check-input">
-
-                    <label asp-for="RememberMe"
-                           class="form-check-label">
-                        Запам'ятати мене
-                    </label>
+                <div class="form-check mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" id="rememberMe">
+                    <label asp-for="RememberMe" class="form-check-label" for="rememberMe">Запам'ятати мене</label>
                 </div>
-
-                <button class="btn btn-primary w-100">
-                    Увійти
-                </button>
-
+                <button type="submit" class="btn btn-primary w-100">Увійти</button>
             </form>
 
             <div class="mt-4 text-center">
-                Немає акаунта?
-                <a asp-action="Register">Реєстрація</a>
+                Немає акаунта? <a asp-action="Register">Зареєструватися</a>
             </div>
-
         </div>
-
     </div>
-
 </body>
 </html>
