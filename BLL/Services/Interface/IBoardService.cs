@@ -1,4 +1,6 @@
-﻿namespace TrelloClone.BLL.Services.Interface
+﻿using Domain.Boards;
+
+namespace BLL.Services.Interface
 {
     public interface IBoardService
     {

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Data.Common;
-using BLL.Interfaces;
+﻿
 using DAL.Context;
-using Domain.Columns;
+using Domain.Boards;
 using Microsoft.EntityFrameworkCore;
 using TrelloClone.BLL.Services.Interface;
+
 
 namespace TrelloClone.Servises.Implementations
 {
@@ -12,9 +11,9 @@ namespace TrelloClone.Servises.Implementations
     {
         public class ColumnService : IColumnService
         {
-            private readonly AppDbContext _context;
+            private readonly ApplicationDbContext _context;
 
-            public ColumnService(AppDbContext context)
+            public ColumnService(ApplicationDbContext context)
             {
                 _context = context;
             }
@@ -29,7 +28,7 @@ namespace TrelloClone.Servises.Implementations
             public async Task<Column?> GetColumnByIdAsync(int id)
             {
                 return await _context.Columns
-                    .Include(c => c.Tasks) 
+                    .Include(c => c.Tasks)
                     .FirstOrDefaultAsync(c => c.Id == id);
             }
 
@@ -58,3 +57,4 @@ namespace TrelloClone.Servises.Implementations
             }
         }
     }
+}

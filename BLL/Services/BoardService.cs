@@ -1,17 +1,16 @@
-﻿using System;
-using BLL.Interfaces;
-using DAL.Context;
+﻿using DAL.Context;
 using Domain.Boards;
 using Microsoft.EntityFrameworkCore;
-using TrelloClone.BLL.Services.Interface;
+using BLL.Services.Interface;
 
-namespace TrelloClone.BLL.Services
+
+namespace BLL.Services
 {
     public class BoardService : IBoardService
     {
-        private readonly AppDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public BoardService(AppDbContext context)
+        public BoardService(ApplicationDbContext context)
         {
             _context = context;
         }

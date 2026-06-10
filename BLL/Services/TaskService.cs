@@ -1,43 +1,42 @@
-﻿using System;
-using BLL.Interfaces;
+﻿
 using DAL.Context;
-using Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TrelloClone.BLL.Services.Interface;
+using BLL.Services.Interface;
 
-namespace TrelloClone.BLL.Services
+
+namespace BLL.Services
 {
     public class TaskService : ITaskService
     {
-        private readonly AppDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public TaskService(AppDbContext context)
+        public TaskService(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public async Task<TaskItem> CreateTaskAsync(TaskItem task)
+        public async Task<Domain.Tasks.Task> CreateTaskAsync(Domain.Tasks.Task task)
         {
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
             return task;
         }
 
-        public async Task<TaskItem?> GetTaskByIdAsync(int id)
+        public async Task<Domain.Tasks.Task?> GetTaskByIdAsync(int id)
         {
             return await _context.Tasks
                 .Include(t => t.Column)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public async Task<IEnumerable<TaskItem>> GetTasksByColumnIdAsync(int columnId)
+        public async Task<IEnumerable<Domain.Tasks.Task>> GetTasksByColumnIdAsync(int columnId)
         {
             return await _context.Tasks
                 .Where(t => t.ColumnId == columnId)
                 .ToListAsync();
         }
 
-        public async Task<TaskItem> UpdateTaskAsync(TaskItem task)
+        public async Task<Domain.Tasks.Task> UpdateTaskAsync(Domain.Tasks.Task task)
         {
             _context.Tasks.Update(task);
             await _context.SaveChangesAsync();

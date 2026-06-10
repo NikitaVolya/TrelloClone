@@ -1,5 +1,5 @@
-﻿using System.Data.Common;
-using Domain.Columns;
+﻿
+using Domain.Boards;
 
 namespace TrelloClone.BLL.Services.Interface
 {
