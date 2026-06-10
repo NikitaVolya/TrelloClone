@@ -1,6 +1,5 @@
 using DAL.Context;
-using DAL.Repositories;
-using DAL.Repositories.Interfaces;
+using MVC.Services;
 using Domain.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +23,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

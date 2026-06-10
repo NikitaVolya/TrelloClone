@@ -1,12 +1,11 @@
 ﻿
-using DAL.Repositories.Interfaces;
 using Domain.Common;
 using Microsoft.AspNetCore.Identity;
 
 
-namespace DAL.Repositories
+namespace MVC.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;

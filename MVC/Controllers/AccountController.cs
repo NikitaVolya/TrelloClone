@@ -1,15 +1,16 @@
-﻿using DAL.Repositories.Interfaces;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using MVC.Models.Account;
+using MVC.Services;
 
 namespace MVC.Controllers
 {
     public class AccountController : Controller
     {
 
-        private readonly IAuthService _authService;
+        private readonly AuthService _authService;
 
-        public AccountController(IAuthService authService)
+        public AccountController(AuthService authService)
         {
             _authService = authService;
         }
