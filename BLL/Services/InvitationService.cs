@@ -102,7 +102,7 @@ namespace BLL.Services
                 case InvitationStatus.Approved:
                     throw new InvalidOperationException("Invitation has already been accepted.");
                 case InvitationStatus.Declined:
-                    throw new InvalidOperationException("Invitation has already been declined.");
+                    throw new InvalidOperationException(("Invitation has already been declined.");
                 case InvitationStatus.Pending:
                     invitation.Status = InvitationStatus.Declined;
                     _invitationRepository.Update(invitation);
