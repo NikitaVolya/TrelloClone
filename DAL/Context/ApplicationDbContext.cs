@@ -4,7 +4,6 @@ using Domain.Common;
 using Domain.Projects;
 using Domain.Tasks;
 
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
