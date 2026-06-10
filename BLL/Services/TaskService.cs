@@ -3,9 +3,9 @@ using BLL.Interfaces;
 using DAL.Context;
 using Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TrelloClone.BLL.Servises.Interfaces;
+using TrelloClone.BLL.Services.Interface;
 
-namespace TrelloClone.BLL.Servises.Implementations
+namespace TrelloClone.BLL.Services
 {
     public class TaskService : ITaskService
     {

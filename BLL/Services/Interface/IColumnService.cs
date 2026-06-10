@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
 using Domain.Columns;
 
-namespace TrelloClone.BLL.Servises.Interfaces
+namespace TrelloClone.BLL.Services.Interface
 {
     public interface IColumnService
     {

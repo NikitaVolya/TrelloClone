@@ -1,6 +1,6 @@
 ﻿using Domain.Tasks;
 
-namespace TrelloClone.BLL.Servises.Interfaces
+namespace TrelloClone.BLL.Services.Interface
 {
     public interface ITaskService
     {

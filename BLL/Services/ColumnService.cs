@@ -4,7 +4,7 @@ using BLL.Interfaces;
 using DAL.Context;
 using Domain.Columns;
 using Microsoft.EntityFrameworkCore;
-using TrelloClone.BLL.Servises.Interfaces;
+using TrelloClone.BLL.Services.Interface;
 
 namespace TrelloClone.Servises.Implementations
 {
