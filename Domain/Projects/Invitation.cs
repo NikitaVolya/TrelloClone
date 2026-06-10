@@ -1,6 +1,4 @@
 ﻿
-using Domain.Boards;
-
 namespace Domain.Projects
 {
     public enum InvitationStatus
@@ -12,10 +10,12 @@ namespace Domain.Projects
 
     public class Invitation
     {
+        public int Id { get; set; }
+
         public string UserId { get; set; } = null!;
 
-        public int BoardId { get; set; }    
-        public Board Board { get; set; }
+        public int ProjectId { get; set; }
+        public Project Project { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

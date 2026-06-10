@@ -15,5 +15,7 @@ namespace Domain.Projects
         public DateTime CreatedAt { get; set; }
 
         public List<Board> Boards { get; set; } = new List<Board>();
+        public List<ProjectMember> Members { get; set; } = new List<ProjectMember>();
+        public List<Invitation> Invitations { get; set; } = new List<Invitation>();
     }
 }

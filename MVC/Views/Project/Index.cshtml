@@ -17,13 +17,14 @@
             @foreach (var project in Model)
             {
                 <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">@project.Title</h5>
-                            <p class="card-text">@project.Description</p>
-                            <a asp-controller="Project" asp-action="Detail" asp-route-id=@project.Id class="btn btn-primary">Деталі</a>
+                    <a asp-controller="Project" asp-action="Detail" asp-route-id="@project.Id" class="text-decoration-none">
+                        <div class="card h-100" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+                            <div class="card-body">
+                                <h5 class="card-title text-dark">@project.Title</h5>
+                                <p class="card-text text-muted">@project.Description</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             }
         </div>

@@ -110,15 +110,23 @@ namespace MVC.Controllers
                 return NotFound(new { message = "Дошка не знайдена" });
             }
 
+            var project = ProjectController.MockProjects.FirstOrDefault(p => p.Boards.Any(b => b.Id == boardId));
+            if (project == null)
+            {
+                return NotFound(new { message = "Проект не знайдено" });
+            }
+
             var invitation = new Invitation
             {
+                Id = MockInvitations.Count + 1,
                 UserId = userId,
-                BoardId = boardId,
+                ProjectId = project.Id,
                 CreatedAt = DateTime.Now,
                 Status = InvitationStatus.Pending
             };
 
             MockInvitations.Add(invitation);
+            project.Invitations.Add(invitation);
             return Ok(new { message = "Запрошення надіслано", invitation });
         }
     }

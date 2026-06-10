@@ -13,6 +13,13 @@
         </div>
         <div>
             <a asp-action="Index" class="btn btn-secondary">← Назад до проектів</a>
+            
+            @if (Model.OwnerId == "user1")
+            {
+                <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#projectSettingsModal">
+                    <i class="bi bi-gear"></i> Налаштування
+                </button>
+            }
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBoardModal">+ Створити дошку</button>
         </div>
     </div>
@@ -68,6 +75,125 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
                     <button type="submit" class="btn btn-primary">Створити</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Project Settings Modal -->
+<div class="modal fade" id="projectSettingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Налаштування проєкту</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- General Settings -->
+                <h6 class="mb-3">Загальні налаштування</h6>
+                <form asp-action="Update" method="post" id="updateProjectForm">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label for="projectTitle" class="form-label">Назва проєкту</label>
+                        <input type="text" class="form-control" id="projectTitle" name="title" value="@Model.Title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="projectDescription" class="form-label">Опис проєкту</label>
+                        <textarea class="form-control" id="projectDescription" name="description" rows="3">@Model.Description</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                </form>
+
+                <hr class="my-4">
+
+                <!-- Members Section -->
+                <h6 class="mb-3">Учасники проєкту</h6>
+                @if (Model.Members.Any())
+                {
+                    <div class="list-group mb-3">
+                        @foreach (var member in Model.Members)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@member.MemberId</strong>
+                                    <br>
+                                    <small class="text-muted">Приєднався: @member.JoinedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                </div>
+                                <form asp-action="RemoveMember" method="post" class="d-inline">
+                                    <input type="hidden" name="projectId" value="@Model.Id" />
+                                    <input type="hidden" name="userId" value="@member.MemberId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Видалити учасника?')">Видалити</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Немає учасників у проєкті.</p>
+                }
+
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMemberModal">+ Додати учасника</button>
+
+                <hr class="my-4">
+
+                <!-- Invitations Section -->
+                <h6 class="mb-3">Запрошення</h6>
+                @{
+                    var pendingInvitations = Model.Invitations.Where(i => i.Status != Domain.Projects.InvitationStatus.Approved).ToList();
+                }
+                @if (pendingInvitations.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var invitation in pendingInvitations)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@invitation.UserId</strong>
+                                        <br>
+                                        <small class="text-muted">Відправлено: @invitation.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                    </div>
+                                    <span class="badge @(invitation.Status == Domain.Projects.InvitationStatus.Pending ? "bg-warning" : "bg-danger")">
+                                        @(invitation.Status == Domain.Projects.InvitationStatus.Pending ? "Очікує відповіді" : "Відхилено")
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Немає активних запрошень.</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Member Modal -->
+<div class="modal fade" id="addMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="SendInvitation" method="post">
+                <input type="hidden" name="projectId" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Додати учасника</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="userId" class="form-label">ID користувача</label>
+                        <input type="text" class="form-control" id="userId" name="userId" placeholder="Введіть ID або email користувача" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Надіслати запрошення</button>
                 </div>
             </form>
         </div>
