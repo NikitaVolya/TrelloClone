@@ -2,10 +2,12 @@
 {
     public interface IBoardService
     {
-        Task<Board> CreateBoardAsync(Board board);
-        Task<Board?> GetBoardByIdAsync(int id);
-        Task<IEnumerable<Board>> GetBoardsByProjectIdAsync(int projectId);
-        Task<Board> UpdateBoardAsync(Board board);
-        Task<bool> DeleteBoardAsync(int id);
+        public interface IBoardService
+        {
+            Task<Domain.Boards.Board> CreateBoardAsync(string name, Guid ownerId);
+            Task<Domain.Boards.Board?> GetBoardByIdAsync(int boardId);
+            Task<IEnumerable<Domain.Boards.Board>> GetBoardsForUserAsync(Guid userId);
+            Task UpdateBoardAsync(int boardId, string name);
+            Task DeleteBoardAsync(int boardId);
+        }
     }
-}
