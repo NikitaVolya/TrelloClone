@@ -1,5 +1,5 @@
 ﻿
-using Domain.Boards;
+using Domain.Common;
 
 namespace Domain.Projects
 {
@@ -12,10 +12,13 @@ namespace Domain.Projects
 
     public class Invitation
     {
-        public string UserId { get; set; } = null!;
+        public int Id { get; set; }
 
-        public int BoardId { get; set; }    
-        public Board Board { get; set; }
+        public string UserId { get; set; } = null!;
+        public ApplicationUser User { get; set; }
+
+        public int ProjectId { get; set; }
+        public Project Project { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

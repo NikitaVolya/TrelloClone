@@ -11,17 +11,23 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%235865f2'/><rect x='4' y='8' width='7' height='16' rx='2' fill='white'/><rect x='13' y='8' width='7' height='10' rx='2' fill='white' opacity='.8'/><rect x='22' y='8' width='6' height='13' rx='2' fill='white' opacity='.6'/></svg>">
 </head>
 <body>
-    <div class="app-shell">
-
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon">
-                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="32" rx="8" fill="#5865f2" />
-                        <rect x="4" y="8" width="7" height="16" rx="2" fill="white" />
-                        <rect x="13" y="8" width="7" height="10" rx="2" fill="white" opacity=".85" />
-                        <rect x="22" y="8" width="6" height="13" rx="2" fill="white" opacity=".65" />
-                    </svg>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MVC</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
                 </div>
                 <span class="brand-name">TrelloClon</span>
             </div>
