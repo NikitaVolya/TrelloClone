@@ -5,10 +5,10 @@ namespace TrelloClone.BLL.Services.Interface
 {
     public interface IColumnService
     {
-        Task<Column> CreateColumnAsync(Column column);
-        Task<Column?> GetColumnByIdAsync(int id);
-        Task<IEnumerable<Column>> GetColumnsByBoardIdAsync(int boardId);
-        Task<Column> UpdateColumnAsync(Column column);
-        Task<bool> DeleteColumnAsync(int id);
+        Task<Domain.Columns.Column> CreateColumnAsync(string name, int boardId, Guid userId);
+        Task<Domain.Columns.Column?> GetColumnByIdAsync(int columnId);
+        Task<IEnumerable<Domain.Columns.Column>> GetColumnsForBoardAsync(int boardId);
+        Task UpdateColumnAsync(int columnId, string name);
+        Task DeleteColumnAsync(int columnId);
     }
 }

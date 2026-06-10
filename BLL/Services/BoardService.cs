@@ -1,57 +1,49 @@
-﻿using System;
-using BLL.Interfaces;
-using DAL.Context;
+﻿using DAL.UnitOfWork.Interface;
 using Domain.Boards;
-using Microsoft.EntityFrameworkCore;
 using TrelloClone.BLL.Services.Interface;
 
-namespace TrelloClone.BLL.Services
+public class BoardService : IBoardService
 {
-    public class BoardService : IBoardService
+    private readonly IUnitOfWork _unitOfWork;
+
+    public BoardService(IUnitOfWork unitOfWork)
     {
-        private readonly AppDbContext _context;
+        _unitOfWork = unitOfWork;
+    }
 
-        public BoardService(AppDbContext context)
-        {
-            _context = context;
-        }
+    public async Task<Board> CreateBoardAsync(string name, Guid ownerId)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Board name cannot be empty");
 
-        public async Task<Board> CreateBoardAsync(Board board)
-        {
-            _context.Boards.Add(board);
-            await _context.SaveChangesAsync();
-            return board;
-        }
+        var board = new Board { Name = name, OwnerId = ownerId };
+        await _unitOfWork.Boards.AddAsync(board);
+        await _unitOfWork.SaveChangesAsync();
+        return board;
+    }
 
-        public async Task<Board?> GetBoardByIdAsync(int id)
-        {
-            return await _context.Boards
-                .Include(b => b.Columns) 
-                .FirstOrDefaultAsync(b => b.Id == id);
-        }
+    public Task<Board?> GetBoardByIdAsync(int boardId) =>
+        _unitOfWork.Boards.GetByIdAsync(boardId);
 
-        public async Task<IEnumerable<Board>> GetBoardsByProjectIdAsync(int projectId)
-        {
-            return await _context.Boards
-                .Where(b => b.ProjectId == projectId)
-                .ToListAsync();
-        }
+    public Task<IEnumerable<Board>> GetBoardsForUserAsync(Guid userId) =>
+        _unitOfWork.Boards.GetByOwnerIdAsync(userId);
 
-        public async Task<Board> UpdateBoardAsync(Board board)
-        {
-            _context.Boards.Update(board);
-            await _context.SaveChangesAsync();
-            return board;
-        }
+    public async Task UpdateBoardAsync(int boardId, string name)
+    {
+        var board = await _unitOfWork.Boards.GetByIdAsync(boardId)
+            ?? throw new ArgumentException("Board not found");
 
-        public async Task<bool> DeleteBoardAsync(int id)
-        {
-            var board = await _context.Boards.FindAsync(id);
-            if (board == null) return false;
+        board.Name = name;
+        _unitOfWork.Boards.Update(board);
+        await _unitOfWork.SaveChangesAsync();
+    }
 
-            _context.Boards.Remove(board);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+    public async Task DeleteBoardAsync(int boardId)
+    {
+        var board = await _unitOfWork.Boards.GetByIdAsync(boardId)
+            ?? throw new ArgumentException("Board not found");
+
+        _unitOfWork.Boards.Delete(board);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

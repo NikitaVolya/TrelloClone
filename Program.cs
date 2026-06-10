@@ -3,9 +3,9 @@ using BLL.Implementations;
 using BLL.Interfaces;
 using DAL.Context;
 using Microsoft.EntityFrameworkCore;
-using TrelloClone.Servises.Implementations;
+using TrelloClone.BLL.Services;
+using TrelloClone.BLL.Services.Interface;
 using TrelloClone.Servises.Implementations.BLL.Implementations;
-using TrelloClone.Servises.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

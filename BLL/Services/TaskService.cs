@@ -1,68 +1,78 @@
-﻿using System;
-using BLL.Interfaces;
-using DAL.Context;
-using Domain.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using DAL.UnitOfWork.Interface;
 using TrelloClone.BLL.Services.Interface;
 
-namespace TrelloClone.BLL.Services
+public class TaskService : ITaskService
 {
-    public class TaskService : ITaskService
+    private readonly IUnitOfWork _unitOfWork;
+
+    public TaskService(IUnitOfWork unitOfWork)
     {
-        private readonly AppDbContext _context;
+        _unitOfWork = unitOfWork;
+    }
 
-        public TaskService(AppDbContext context)
+    public async Task<Task> CreateTaskAsync(string title, string description, int columnId, Guid userId)
+    {
+        var column = await _unitOfWork.Columns.GetByIdAsync(columnId)
+            ?? throw new ArgumentException("Column does not exist");
+
+        var hasAccess = await _unitOfWork.Projects.HasAccessAsync(column.ProjectId, userId);
+        if (!hasAccess)
+            throw new UnauthorizedAccessException("User has no access to this project");
+
+        var task = new Task
         {
-            _context = context;
-        }
+            Title = title,
+            Description = description,
+            ColumnId = columnId,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = userId
+        };
 
-        public async Task<TaskItem> CreateTaskAsync(TaskItem task)
-        {
-            _context.Tasks.Add(task);
-            await _context.SaveChangesAsync();
-            return task;
-        }
+        await _unitOfWork.Tasks.AddAsync(task);
+        await _unitOfWork.SaveChangesAsync();
+        return task;
+    }
 
-        public async Task<TaskItem?> GetTaskByIdAsync(int id)
-        {
-            return await _context.Tasks
-                .Include(t => t.Column)
-                .FirstOrDefaultAsync(t => t.Id == id);
-        }
+    public Task<Task?> GetTaskByIdAsync(int taskId) =>
+        _unitOfWork.Tasks.GetByIdAsync(taskId);
 
-        public async Task<IEnumerable<TaskItem>> GetTasksByColumnIdAsync(int columnId)
-        {
-            return await _context.Tasks
-                .Where(t => t.ColumnId == columnId)
-                .ToListAsync();
-        }
+    public Task<IEnumerable<Task>> GetTasksForColumnAsync(int columnId) =>
+        _unitOfWork.Tasks.GetByColumnIdAsync(columnId);
 
-        public async Task<TaskItem> UpdateTaskAsync(TaskItem task)
-        {
-            _context.Tasks.Update(task);
-            await _context.SaveChangesAsync();
-            return task;
-        }
+    public async Task UpdateTaskAsync(int taskId, string title, string description)
+    {
+        var task = await _unitOfWork.Tasks.GetByIdAsync(taskId)
+            ?? throw new ArgumentException("Task not found");
 
-        public async Task<bool> DeleteTaskAsync(int id)
-        {
-            var task = await _context.Tasks.FindAsync(id);
-            if (task == null) return false;
+        task.Title = title;
+        task.Description = description;
+        _unitOfWork.Tasks.Update(task);
+        await _unitOfWork.SaveChangesAsync();
+    }
 
-            _context.Tasks.Remove(task);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+    public async Task MoveTaskAsync(int taskId, int newColumnId, Guid userId)
+    {
+        var task = await _unitOfWork.Tasks.GetByIdAsync(taskId)
+            ?? throw new ArgumentException("Task not found");
 
-        public async Task<bool> MoveTaskAsync(int taskId, int targetColumnId)
-        {
-            var task = await _context.Tasks.FindAsync(taskId);
-            if (task == null) return false;
+        var newColumn = await _unitOfWork.Columns.GetByIdAsync(newColumnId)
+            ?? throw new ArgumentException("Target column does not exist");
 
-            task.ColumnId = targetColumnId;
-            _context.Tasks.Update(task);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+        var hasAccess = await _unitOfWork.Projects.HasAccessAsync(newColumn.ProjectId, userId);
+        if (!hasAccess)
+            throw new UnauthorizedAccessException("User has no access to this project");
+
+        task.ColumnId = newColumnId;
+        _unitOfWork.Tasks.Update(task);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteTaskAsync(int taskId)
+    {
+        var task = await _unitOfWork.Tasks.GetByIdAsync(taskId)
+            ?? throw new ArgumentException("Task not found");
+
+        _unitOfWork.Tasks.Delete(task);
+        await _unitOfWork.SaveChangesAsync();
     }
 }
