@@ -1,13 +1,12 @@
-﻿using System.Data.Common;
-using Domain.Columns;
+﻿using Domain.Boards;
 
-namespace TrelloClone.BLL.Services.Interface
+namespace BLL.Services.Interface
 {
     public interface IColumnService
     {
-        Task<Domain.Columns.Column> CreateColumnAsync(string name, int boardId, Guid userId);
-        Task<Domain.Columns.Column?> GetColumnByIdAsync(int columnId);
-        Task<IEnumerable<Domain.Columns.Column>> GetColumnsForBoardAsync(int boardId);
+        Task<Column> CreateColumnAsync(string name, int boardId, Guid userId);
+        Task<Column?> GetColumnByIdAsync(int columnId);
+        Task<IEnumerable<Column>> GetColumnsForBoardAsync(int boardId);
         Task UpdateColumnAsync(int columnId, string name);
         Task DeleteColumnAsync(int columnId);
     }
