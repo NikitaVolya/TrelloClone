@@ -22,6 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")
             );
+        options.LogTo(Console.WriteLine)
+        .EnableSensitiveDataLogging();
     });
 
 
@@ -69,6 +71,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

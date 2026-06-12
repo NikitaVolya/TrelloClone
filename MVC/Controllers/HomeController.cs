@@ -13,6 +13,7 @@ namespace MVC.Controllers
             _logger = logger;
         }
 
+        
         public IActionResult Index()
         {
             string? userName = User.Identity?.Name;

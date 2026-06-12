@@ -30,7 +30,7 @@ namespace MVC.Services
             if (user == null) { 
                 return false;
             } else {
-                return false;
+                return true;
             }
         }
 
