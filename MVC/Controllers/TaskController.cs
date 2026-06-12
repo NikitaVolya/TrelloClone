@@ -168,20 +168,54 @@ namespace MVC.Controllers
         [HttpPost]
         public IActionResult AssignUser(int taskId, string userId)
         {
-            var task = MockTasks.FirstOrDefault(t => t.Id == taskId);
+            var board = BoardController.MockBoards.FirstOrDefault(b => b.Tasks.Any(t => t.Id == taskId));
+            if (board == null)
+            {
+                return NotFound(new { message = "Дошка не знайдена" });
+            }
+
+            var task = board.Tasks.FirstOrDefault(t => t.Id == taskId);
             if (task == null)
             {
                 return NotFound(new { message = "Таска не знайдена" });
             }
 
-            var assignee = new TaskAssignee
+            if (!task.Assignees.Any(a => a.UserId == userId))
             {
-                UserId = userId,
-                TaskId = taskId
-            };
+                var assignee = new TaskAssignee
+                {
+                    UserId = userId,
+                    TaskId = taskId
+                };
 
-            task.Assignees.Add(assignee);
-            return Ok(new { message = "Користувача призначено", assignee });
+                task.Assignees.Add(assignee);
+            }
+
+            return RedirectToAction("Details", "Board", new { id = board.Id });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveAssignee(int taskId, string userId)
+        {
+            var board = BoardController.MockBoards.FirstOrDefault(b => b.Tasks.Any(t => t.Id == taskId));
+            if (board == null)
+            {
+                return NotFound(new { message = "Дошка не знайдена" });
+            }
+
+            var task = board.Tasks.FirstOrDefault(t => t.Id == taskId);
+            if (task == null)
+            {
+                return NotFound(new { message = "Таска не знайдена" });
+            }
+
+            var assignee = task.Assignees.FirstOrDefault(a => a.UserId == userId);
+            if (assignee != null)
+            {
+                task.Assignees.Remove(assignee);
+            }
+
+            return RedirectToAction("Details", "Board", new { id = board.Id });
         }
     }
 }

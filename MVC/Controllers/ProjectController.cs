@@ -80,11 +80,16 @@ namespace MVC.Controllers
             return View(projects);
         }
 
-        public ActionResult Detail(int id) { 
+        public ActionResult Detail(int id) {
             var project = MockProjects.FirstOrDefault(p => p.Id == id);
-            if (project == null) { 
+            if (project == null) {
                 return NotFound( new{ message = "Проект не найдено" });
             }
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "user1";
+            ViewBag.IsOwner = project.OwnerId == currentUserId;
+            ViewBag.CurrentUserId = currentUserId;
+
             return View(project);
         }
 

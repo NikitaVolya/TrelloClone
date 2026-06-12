@@ -14,9 +14,12 @@
         </div>
         <div>
             <a asp-action="Index" class="btn btn-secondary">← Назад до проектів</a>
-            
-            @if (Model.OwnerId == "user1")
+
+            @if (ViewBag.IsOwner == true)
             {
+                <button class="btn btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#inviteToBoardModal">
+                    Запросити до дошки
+                </button>
                 <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#projectSettingsModal">
                     <i class="bi bi-gear"></i> Налаштування
                 </button>
@@ -195,6 +198,41 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
                     <button type="submit" class="btn btn-primary">Надіслати запрошення</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Invite to Board Modal -->
+<div class="modal fade" id="inviteToBoardModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Board" asp-action="InviteUser" method="post">
+                <input type="hidden" name="projectId" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Запросити користувача до дошки</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Дошка</label>
+                        <select class="form-select" name="boardId" required>
+                            <option value="">Оберіть дошку</option>
+                            @foreach (var board in Model.Boards)
+                            {
+                                <option value="@board.Id">@board.Title</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">User ID</label>
+                        <input type="text" class="form-control" name="userId" placeholder="Введіть ID користувача" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Відправити запрошення</button>
                 </div>
             </form>
         </div>

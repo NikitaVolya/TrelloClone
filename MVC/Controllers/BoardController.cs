@@ -56,6 +56,18 @@ namespace MVC.Controllers
 
             ViewBag.Comments = TaskController.MockComments;
 
+            var project = ProjectController.MockProjects.FirstOrDefault(p => p.Boards.Any(b => b.Id == id));
+            if (project != null)
+            {
+                var projectMembers = project.Members.Select(m => m.MemberId).ToList();
+                projectMembers.Add(project.OwnerId);
+                ViewBag.ProjectMembers = projectMembers.Distinct().ToList();
+            }
+            else
+            {
+                ViewBag.ProjectMembers = new List<string>();
+            }
+
             return View(board);
         }
 

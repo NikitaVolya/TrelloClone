@@ -1,0 +1,69 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Повідомлення";
+    var invitations = Model as dynamic;
+    var currentUserId = ViewBag.CurrentUserId as string;
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Повідомлення</h1>
+
+    @if (invitations != null && invitations.Count > 0)
+    {
+        <div class="list-group">
+            @foreach (var item in invitations)
+            {
+                var invitation = item.Invitation;
+                var projectTitle = item.ProjectTitle;
+                var projectId = item.ProjectId;
+
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">Запрошення до проєкту</h5>
+                            <p class="mb-1">
+                                Вас запросили до проєкту <strong>@projectTitle</strong>
+                            </p>
+                            <small class="text-muted">
+                                Відправлено: @invitation.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            </small>
+                        </div>
+
+                        <div class="ms-3">
+                            @if (invitation.Status == Domain.Projects.InvitationStatus.Pending)
+                            {
+                                <div class="d-flex gap-2">
+                                    <form asp-controller="Notification" asp-action="AcceptInvitation" method="post" class="d-inline">
+                                        <input type="hidden" name="invitationId" value="@invitation.Id" />
+                                        <input type="hidden" name="projectId" value="@projectId" />
+                                        <button type="submit" class="btn btn-sm btn-success">Прийняти</button>
+                                    </form>
+                                    <form asp-controller="Notification" asp-action="DeclineInvitation" method="post" class="d-inline">
+                                        <input type="hidden" name="invitationId" value="@invitation.Id" />
+                                        <input type="hidden" name="projectId" value="@projectId" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Відхилити</button>
+                                    </form>
+                                </div>
+                            }
+                            else if (invitation.Status == Domain.Projects.InvitationStatus.Approved)
+                            {
+                                <span class="badge bg-success">Прийнято</span>
+                            }
+                            else if (invitation.Status == Domain.Projects.InvitationStatus.Declined)
+                            {
+                                <span class="badge bg-danger">Відхилено</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h5>Немає повідомлень</h5>
+            <p class="mb-0">У вас поки що немає запрошень до проєктів.</p>
+        </div>
+    }
+</div>
