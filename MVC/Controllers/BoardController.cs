@@ -2,6 +2,7 @@
 using Domain.Boards;
 using BLL.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
+using Domain.Projects;
 
 
 namespace MVC.Controllers
@@ -25,10 +26,6 @@ namespace MVC.Controllers
             {
                 return NotFound(new { message = "Дошка не знайдена" });
             }
-
-            board.Columns = board.Columns.OrderBy(c => c.Order).ToList();
-
-            ViewBag.Comments = await _boardService.GetBoardTaskComments(id);
 
             return View(board);
         }

@@ -83,13 +83,6 @@ namespace DAL.Context
                 .HasForeignKey(inv => inv.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<Invitation>()
-                .HasKey(pm => new
-                {
-                    pm.ProjectId,
-                    pm.UserId
-                });
-
             // ============== END   Inivation ===================== 
 
 

@@ -19,6 +19,11 @@ namespace MVC.Services
             return await _userManager.FindByIdAsync(userId);
         }
 
+        public async Task<ApplicationUser?> GetByEmailAsync(string userEmail)
+        {
+            return await _userManager.FindByEmailAsync(userEmail);
+        }
+
         public async Task<bool> UserExistsAsync(string userId)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(userId);

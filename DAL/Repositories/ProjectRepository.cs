@@ -21,6 +21,7 @@ namespace DAL.Repositories
             return await _context.Projects
                 .Include(p => p.Boards)
                 .Include(p => p.Members)
+                .ThenInclude(m => m.Member)
                 .Include(p => p.Invitations)
                 .Include(p => p.Owner)
                 .FirstOrDefaultAsync(p => p.Id == id);

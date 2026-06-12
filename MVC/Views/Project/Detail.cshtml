@@ -14,15 +14,17 @@
         </div>
         <div>
             <a asp-action="Index" class="btn btn-secondary">← Назад до проектів</a>
-            
-            @if (Model.OwnerId == "user1")
+
+            @if (ViewBag.IsOwner == true)
             {
+                <button class="btn btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#inviteToProjectModal">
+                    Запросити до проєкту
+                </button>
                 <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#projectSettingsModal">
                     <i class="bi bi-gear"></i> Налаштування
                 </button>
             }
 
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#inviteUserModal">Запросити користувача</button>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBoardModal">+ Створити дошку</button>
         </div>
     </div>
@@ -119,7 +121,7 @@
                         {
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>@member.MemberId</strong>
+                                    <strong>@member.Member.UserName</strong>
                                     <br>
                                     <small class="text-muted">Приєднався: @member.JoinedAt.ToString("dd.MM.yyyy HH:mm")</small>
                                 </div>
@@ -136,8 +138,6 @@
                 {
                     <p class="text-muted">Немає учасників у проєкті.</p>
                 }
-
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMemberModal">+ Додати учасника</button>
 
                 <hr class="my-4">
 
@@ -178,45 +178,20 @@
     </div>
 </div>
 
-<!-- Add Member Modal -->
-<div class="modal fade" id="addMemberModal" tabindex="-1">
+<!-- Invite to Project Modal -->
+<div class="modal fade" id="inviteToProjectModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="SendInvitation" method="post">
-                <input type="hidden" name="projectId" value="@Model.Id" />
+            <form asp-controller="Project" asp-action="SendInvitation" method="post">
+                <input type="hidden" name="projectId" value="@Model.Id"/>
                 <div class="modal-header">
-                    <h5 class="modal-title">Додати учасника</h5>
+                    <h5 class="modal-title">Запросити користувача до дошки</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="userId" class="form-label">ID користувача</label>
-                        <input type="text" class="form-control" id="userId" name="userId" placeholder="Введіть ID або email користувача" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                    <button type="submit" class="btn btn-primary">Надіслати запрошення</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Invite User Modal -->
-<div class="modal fade" id="inviteUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-controller="Board" asp-action="InviteUser" method="post">
-                <input type="hidden" name="boardId" value="@Model.Id" />
-                <div class="modal-header">
-                    <h5 class="modal-title">Запросити користувача</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">User ID</label>
-                        <input type="text" class="form-control" name="userId" required>
+                        <label class="form-label">User email</label>
+                        <input type="text" class="form-control" name="userEmail" placeholder="Введіть пошту користувача" required>
                     </div>
                 </div>
                 <div class="modal-footer">

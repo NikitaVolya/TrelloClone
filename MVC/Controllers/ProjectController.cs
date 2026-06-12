@@ -4,6 +4,7 @@ using BLL.Services.Interface;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
+using Domain.Common;
 
 
 
@@ -13,11 +14,13 @@ namespace MVC.Controllers
     public class ProjectController : Controller
     {
         private readonly IProjectService _projectService;
+        private readonly IUserService _userService;
         private readonly IInvitationService _invitationService;
 
-        public ProjectController(IProjectService projectService, IInvitationService invitationService)
+        public ProjectController(IProjectService projectService, IUserService userService, IInvitationService invitationService)
         {
             _projectService = projectService;
+            _userService = userService;
             _invitationService = invitationService;
         }
 
@@ -44,6 +47,11 @@ namespace MVC.Controllers
             if (project == null) { 
                 return NotFound( new{ message = "Проект не найдено" });
             }
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "user1";
+            ViewBag.IsOwner = project.OwnerId == currentUserId;
+            ViewBag.CurrentUserId = currentUserId;
+
             return View(project);
         }
 
@@ -94,18 +102,14 @@ namespace MVC.Controllers
             {
                 return NotFound(new { message = "Проект не знайдено" });
             }
-
-            var member = project.Members.FirstOrDefault(m => m.MemberId == userId);
-            if (member != null)
-            {
-                project.Members.Remove(member);
-            }
+            
+            await _projectService.RemoveMemberAsync(projectId, userId);
 
             return RedirectToAction("Detail", new { id = projectId });
         }
 
         [HttpPost]
-        public async Task<ActionResult> SendInvitation(int projectId, string userId)
+        public async Task<ActionResult> SendInvitation(int projectId, string userEmail)
         {
             Project? project = await _projectService.GetByIdAsync(projectId);
             if (project == null)
@@ -113,7 +117,13 @@ namespace MVC.Controllers
                 return NotFound(new { message = "Проект не знайдено" });
             }
 
-            await _invitationService.InviteUserAsync(projectId, project.OwnerId, userId);
+            ApplicationUser? user = await _userService.GetByEmailAsync(userEmail);
+            if (user == null)
+            {
+                return NotFound(new { message = "Користувач з такою поштою не існує" });
+            }
+
+            await _invitationService.InviteUserAsync(projectId, project.OwnerId, user.Id);
 
             return RedirectToAction("Detail", new { id = projectId });
         }

@@ -18,7 +18,7 @@
 
     <!-- Kanban Board -->
     <div class="row flex-nowrap overflow-auto" id="kanban-board" style="min-height: 70vh;">
-        @foreach (var column in Model.Columns)
+        @foreach (var column in Model.Columns.OrderBy(c => c.Order))
         {
             <div class="col-md-3 mb-3 column-container" draggable="true" data-column-id="@column.Id" data-column-order="@column.Order">
                 <div class="card">
@@ -71,12 +71,53 @@
                                             <p>@(task.Deadline.HasValue ? task.Deadline.Value.ToString("dd.MM.yyyy HH:mm") : "Не встановлено")</p>
 
                                             <h6>Виконавці:</h6>
-                                            <ul>
-                                                @foreach (var assignee in task.Assignees)
+                                            <div class="mb-3">
+                                                @if (task.Assignees.Any())
                                                 {
-                                                    <li>Користувач: @assignee.UserId</li>
+                                                    <ul class="list-group mb-2">
+                                                        @foreach (var assignee in task.Assignees)
+                                                        {
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                Користувач: @assignee.UserId
+                                                                <form asp-controller="Task" asp-action="RemoveAssignee" method="post" class="d-inline">
+                                                                    <input type="hidden" name="taskId" value="@task.Id" />
+                                                                    <input type="hidden" name="userId" value="@assignee.UserId" />
+                                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Видалити</button>
+                                                                </form>
+                                                            </li>
+                                                        }
+                                                    </ul>
                                                 }
-                                            </ul>
+                                                else
+                                                {
+                                                    <p class="text-muted">Виконавці не призначені</p>
+                                                }
+
+                                                <form asp-controller="Task" asp-action="AssignUser" method="post" class="d-flex gap-2">
+                                                    <input type="hidden" name="taskId" value="@task.Id" />
+                                                    @{
+                                                        var projectMembers = ViewBag.ProjectMembers as List<string> ?? new List<string>();
+                                                    }
+                                                    @if (projectMembers.Any())
+                                                    {
+                                                        <select class="form-select form-select-sm" name="userId" required>
+                                                            <option value="">Оберіть користувача</option>
+                                                            @foreach (var memberId in projectMembers)
+                                                            {
+                                                                if (!task.Assignees.Any(a => a.UserId == memberId))
+                                                                {
+                                                                    <option value="@memberId">@memberId</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                        <button type="submit" class="btn btn-sm btn-success">Призначити</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-muted">Немає доступних учасників для призначення</p>
+                                                    }
+                                                </form>
+                                            </div>
 
                                             <h6>Коментарі:</h6>
                                             <div class="mb-3">
@@ -217,7 +258,6 @@
         </div>
     </div>
 </div>
-
 
 <script>
     let draggedTask = null;

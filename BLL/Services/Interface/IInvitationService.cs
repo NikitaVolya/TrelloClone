@@ -10,10 +10,10 @@ namespace BLL.Services.Interface
 
         Task<List<Invitation>> GetUserInvitationsAsync(string userId);
 
-        Task AcceptInvitationAsync(int projectId, string userId);
+        Task AcceptInvitationAsync(int invitationId, string userId);
 
-        Task DeclineInvitationAsync(int projectId, string userId);
+        Task DeclineInvitationAsync(int invitationId, string userId);
 
-        Task<Invitation?> GetInvitationAsync(int projectId, string userId);
+        Task<Invitation?> GetInvitationAsync(int invitationId);
     }
 }

@@ -111,7 +111,21 @@ namespace MVC.Controllers
             
             Domain.Tasks.TaskAssignee assignee = await _taskService.AssigneUser(taskId, userId);
 
-            return Ok(new { message = "Користувача призначено", assignee });
+            return RedirectToAction("Details", "Board", new { id = task.BoardId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveAssignee(int taskId, string userId)
+        {
+            var task = await _taskService.GetTaskByIdAsync(taskId);
+            if (task == null)
+            {
+                return NotFound(new { message = "Таска не знайдена" });
+            }
+
+            await _taskService.DeassigneUser(taskId, userId);
+
+            return RedirectToAction("Details", "Board", new { id = task.BoardId });
         }
     }
 }

@@ -41,11 +41,13 @@ namespace BLL.Services
             if (board.Project.OwnerId != userId && member == null)
                 throw new UnauthorizedAccessException("User has no access to this board");
 
+            List<Column> columns = await _columnRepository.GetBoardColumnsAsync(boardId);
+
             var column = new Column
             {
                 Name = name,
                 BoardId = boardId,
-                Order = 0
+                Order = columns.Count()
             };
 
             await _columnRepository.AddAsync(column);
