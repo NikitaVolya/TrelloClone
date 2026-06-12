@@ -30,20 +30,32 @@
             <form asp-action="Register" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                 <div class="mb-3">
-                    <input asp-for="UserName" class="form-control" placeholder="Ім'я користувача">
+                    <input asp-for="UserName"
+                           class="form-control"
+                           placeholder="Ім'я користувача">
                     <span asp-validation-for="UserName" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <input asp-for="Email" class="form-control" placeholder="Email" autocomplete="email">
+                    <input asp-for="Email"
+                           class="form-control"
+                           placeholder="Email">
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <input asp-for="Password" class="form-control" placeholder="Пароль" autocomplete="new-password">
+                    <input asp-for="Password"
+                           class="form-control"
+                           placeholder="Пароль">
+
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-                <div class="mb-4">
-                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Підтвердіть пароль">
+
+                <div class="mb-3">
+                    <input asp-for="ConfirmPassword"
+                           class="form-control"
+                           placeholder="Підтвердіть пароль">
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Зареєструватися</button>
@@ -54,5 +66,12 @@
             </div>
         </div>
     </div>
+<<<<<<< HEAD
+=======
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+>>>>>>> feature/authorization
 </body>
 </html>

@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MVC.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -13,6 +15,10 @@ namespace MVC.Controllers
 
         public IActionResult Index()
         {
+            string? userName = User.Identity?.Name;
+
+            ViewBag.UserName = userName;
+
             return View();
         }
 

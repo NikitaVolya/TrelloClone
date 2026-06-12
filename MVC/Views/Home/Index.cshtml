@@ -1,21 +1,12 @@
 ﻿@{
+    Layout = "_Layout";
     ViewData["Title"] = "Home Page";
 }
 
-<div class="projects-grid">
-    <a class="project-card" href="#">
-        <div class="project-card-color" style="background: #5865f2;"></div>
-        <div class="project-card-title">Дизайн сайту</div>
-        <div class="project-card-meta">4 задачі · Оновлено сьогодні</div>
-    </a>
-    <a class="project-card" href="#">
-        <div class="project-card-color" style="background: #ed4245;"></div>
-        <div class="project-card-title">Backend API</div>
-        <div class="project-card-meta">7 задач · Оновлено вчора</div>
-    </a>
-    <a class="project-card" href="#">
-        <div class="project-card-color" style="background: #57f287;"></div>
-        <div class="project-card-title">Мобільний застосунок</div>
-        <div class="project-card-meta">2 задачі · Оновлено 3 дні тому</div>
-    </a>
+<div class="text-center">
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <p>Вітаємо, <b>@ViewBag.UserName</b> 👋</p>
+    }
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
