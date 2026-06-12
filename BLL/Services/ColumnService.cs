@@ -77,5 +77,29 @@ namespace BLL.Services
             _columnRepository.Delete(column);
             await _unitOfWork.SaveChangesAsync();
         }
+        public async Task ChangeOrder(int columnId, int newOrder)
+        {
+            Column? column = await GetColumnByIdAsync(columnId);
+            if (column == null)
+                throw new InvalidOperationException("Column does not exist.");
+
+            IEnumerable<Column> boardColumns = await GetColumnsForBoardAsync(column.BoardId);
+
+            int oldOrder = column.Order;
+
+            boardColumns = boardColumns.Where(c => c.Order >= newOrder && c.Order < oldOrder);
+
+            foreach (Column boardColumn in boardColumns)
+            {
+                boardColumn.Order += (newOrder < oldOrder ? 1 : -1);
+            }
+
+            column.Order = newOrder;
+
+            _columnRepository.Update(boardColumns);
+            _columnRepository.Update(column);
+            await _unitOfWork.SaveChangesAsync();
+
+        }
     }
 }

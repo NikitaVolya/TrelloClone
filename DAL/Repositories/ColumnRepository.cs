@@ -39,6 +39,11 @@ namespace DAL.Repositories
             _context.Columns.Update(column);
         }
 
+        public void Update(IEnumerable<Column> columns)
+        {
+            _context.Columns.UpdateRange(columns);
+        }
+
         public void Delete(Column column)
         {
             _context.Columns.Remove(column);

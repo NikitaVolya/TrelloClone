@@ -2,9 +2,7 @@ using BLL.Services.Interface;
 using Domain.Boards;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 
 namespace MVC.Controllers
@@ -93,38 +91,15 @@ namespace MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Reorder(int boardId, int columnId, int newOrder)
+        public async Task<IActionResult> Reorder(int columnId, int newOrder)
         {
             Domain.Boards.Column? column = await _columnService.GetColumnByIdAsync(columnId);
             if (column == null)
             {
                 return NotFound(new { message = "Колонка не знайдена" });
             }
-
-            Board? board = await _boardService.GetBoardByIdAsync(boardId);
-            if (board == null)
-            {
-                return NotFound(new { message = "Дошка з такою колонкою не знайдена" });
-            }
-            /*
-            var oldOrder = column.Order;
-
-            if (newOrder < oldOrder)
-            {
-                foreach (var col in board.Columns.Where(c => c.Order >= newOrder && c.Order < oldOrder))
-                {
-                    col.Order++;
-                }
-            }
-            else if (newOrder > oldOrder)
-            {
-                foreach (var col in board.Columns.Where(c => c.Order > oldOrder && c.Order <= newOrder))
-                {
-                    col.Order--;
-                }
-            }
-
-            column.Order = newOrder;*/
+            
+            await _columnService.ChangeOrder(columnId, newOrder);
 
             return Ok(new { message = "Порядок колонок оновлено" });
         }

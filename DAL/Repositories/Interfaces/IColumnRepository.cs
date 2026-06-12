@@ -8,6 +8,7 @@ namespace DAL.Repositories.Interfaces
         Task<List<Column>> GetBoardColumnsAsync(int boardId);
         Task AddAsync(Column column);
         void Update(Column column);
+        public void Update(IEnumerable<Column> columns);
         void Delete(Column column);
     }
 }
