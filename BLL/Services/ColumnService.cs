@@ -2,6 +2,7 @@
 using DAL.Repositories.Interfaces;
 using DAL.UnitOfWork.Interface;
 using Domain.Boards;
+using Domain.Common;
 
 namespace BLL.Services
 {
@@ -10,17 +11,20 @@ namespace BLL.Services
         private readonly IColumnRepository _columnRepository;
         private readonly IBoardRepository _boardRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly IAuthService _authService;
         private readonly IUnitOfWork _unitOfWork;
 
         public ColumnService(
             IColumnRepository columnRepository,
             IBoardRepository boardRepository,
             IProjectRepository projectRepository,
+            IAuthService authService,
             IUnitOfWork unitOfWork)
         {
             _columnRepository = columnRepository;
             _boardRepository = boardRepository;
             _projectRepository = projectRepository;
+            _authService = authService;
             _unitOfWork = unitOfWork;
         }
 
@@ -28,6 +32,10 @@ namespace BLL.Services
         {
             var board = await _boardRepository.GetByIdAsync(boardId)
                 ?? throw new ArgumentException("Board does not exist");
+
+            ApplicationUser? user = await _authService.GetUserByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException("User does not exists.");
 
             var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId);
             if (board.Project.OwnerId != userId && member == null)

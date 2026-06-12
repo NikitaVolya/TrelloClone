@@ -2,6 +2,7 @@
 using BLL.Services.Interface;
 using DAL.Repositories.Interfaces;
 using DAL.UnitOfWork.Interface;
+using Domain.Common;
 using Domain.Projects;
 
 
@@ -11,14 +12,16 @@ namespace BLL.Services
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IInvitationRepository _invitationRepository;
+        private readonly IAuthService _authService;
         private readonly IUnitOfWork _unitOfWork;
 
         public int InvitationDelayInHours => 5;
 
-        public InvitationService(IProjectRepository projectRepository, IInvitationRepository invitationRepository, IUnitOfWork unitOfWork)
+        public InvitationService(IProjectRepository projectRepository, IInvitationRepository invitationRepository, IAuthService authService, IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
             _invitationRepository = invitationRepository;
+            _authService = authService;
             _unitOfWork = unitOfWork;
         }
 
@@ -28,10 +31,11 @@ namespace BLL.Services
             if (project == null)
                 throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
 
+            if (!(await _authService.UserExistsAsync(userId)))
+                throw new InvalidOperationException($"User with id '{userId}' does not exist.");
+
             if (project.OwnerId != ownerId)
                 throw new InvalidOperationException($"User '{ownerId}' is not the owner of project '{projectId}'. Only the owner can send invitations.");
-
-            // TO DO. Check on existing user with userId
 
             Invitation? invitation = await _invitationRepository.GetAsync(projectId, userId);
             if (invitation != null)
@@ -73,6 +77,13 @@ namespace BLL.Services
 
         public async Task AcceptInvitationAsync(int projectId, string userId)
         {
+            Project? project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+                throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
+
+            if (!(await _authService.UserExistsAsync(userId)))
+                throw new InvalidOperationException($"User with id '{userId}' does not exist.");
+
             Invitation? invitation = await GetInvitationAsync(projectId, userId);
             if (invitation == null)
                 throw new InvalidOperationException($"Invitation for user '{userId}' in project '{projectId}' does not exist.");
@@ -93,6 +104,13 @@ namespace BLL.Services
 
         public async Task DeclineInvitationAsync(int projectId, string userId)
         {
+            Project? project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+                throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
+
+            if (!(await _authService.UserExistsAsync(userId)))
+                throw new InvalidOperationException($"User with id '{userId}' does not exist.");
+
             Invitation? invitation = await GetInvitationAsync(projectId, userId);
             if (invitation == null)
                 throw new InvalidOperationException($"Invitation for user '{userId}' in project '{projectId}' does not exist.");
@@ -113,6 +131,13 @@ namespace BLL.Services
 
         public async Task<Invitation?> GetInvitationAsync(int projectId, string userId)
         {
+            Project? project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+                throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
+
+            if (!(await _authService.UserExistsAsync(userId)))
+                throw new InvalidOperationException($"User with id '{userId}' does not exist.");
+
             return await _invitationRepository.GetAsync(projectId, userId);
         }
     }

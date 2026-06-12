@@ -1,16 +1,17 @@
 ﻿
+using BLL.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 using MVC.Models.Account;
-using MVC.Services;
+
 
 namespace MVC.Controllers
 {
     public class AccountController : Controller
     {
 
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public AccountController(AuthService authService)
+        public AccountController(IAuthService authService)
         {
             _authService = authService;
         }
