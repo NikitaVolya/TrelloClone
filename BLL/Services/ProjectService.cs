@@ -11,15 +11,15 @@ namespace BLL.Services
     {
 
         private readonly IProjectRepository _projectRepository;
-        private readonly IAuthService _authService;
+        private readonly IUserService _userService;
         private readonly IUnitOfWork _unitOfWork;
 
         public int MaxOwnerProjectsCount => 3;
 
-        public ProjectService(IProjectRepository projectRepository, IAuthService authService, IUnitOfWork unitOfWork)
+        public ProjectService(IProjectRepository projectRepository, IUserService userService, IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
-            _authService = authService;
+            _userService = userService;
             _unitOfWork = unitOfWork;
         }
 
@@ -29,7 +29,7 @@ namespace BLL.Services
             string ownerId)
         {
 
-            if (!(await _authService.UserExistsAsync(ownerId)))
+            if (!(await _userService.UserExistsAsync(ownerId)))
                 throw new InvalidOperationException($"User with id '{ownerId}' does not exist.");
 
             if (string.IsNullOrEmpty(title))
@@ -56,7 +56,7 @@ namespace BLL.Services
 
         public async Task<List<Project>> GetUserProjectsAsync(string userId)
         {
-            if (!(await _authService.UserExistsAsync(userId)))
+            if (!(await _userService.UserExistsAsync(userId)))
                 throw new InvalidOperationException($"User with id '{userId}' does not exist.");
 
             return await _projectRepository.GetUserProjectsAsync(userId);
@@ -64,7 +64,7 @@ namespace BLL.Services
 
         public async Task<List<Project>> GetOwnerProjectsAsync(string ownerId)
         {
-            if (!(await _authService.UserExistsAsync(ownerId)))
+            if (!(await _userService.UserExistsAsync(ownerId)))
                 throw new InvalidOperationException($"User with id '{ownerId}' does not exist.");
 
             return await _projectRepository.GetOwnerProjectsAsync(ownerId);
@@ -76,7 +76,7 @@ namespace BLL.Services
             if (project == null)
                 return false;
 
-            if (!(await _authService.UserExistsAsync(userId)))
+            if (!(await _userService.UserExistsAsync(userId)))
                 throw new InvalidOperationException($"User with id '{userId}' does not exist.");
 
             if (project.OwnerId != userId)
@@ -113,7 +113,7 @@ namespace BLL.Services
             if (project == null)
                 throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
 
-            if (!(await _authService.UserExistsAsync(memberId)))
+            if (!(await _userService.UserExistsAsync(memberId)))
                 throw new InvalidOperationException($"User with id '{memberId}' does not exist.");
 
             if (project.OwnerId == memberId)
@@ -142,7 +142,7 @@ namespace BLL.Services
             if (project == null)
                 throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
 
-            if (!(await _authService.UserExistsAsync(memberId)))
+            if (!(await _userService.UserExistsAsync(memberId)))
                 throw new InvalidOperationException($"User with id '{memberId}' does not exist.");
 
             ProjectMember? projectMember = await _projectRepository.GetMemberAsync(projectId, memberId);

@@ -1,73 +1,93 @@
+using BLL.Services.Interface;
+using Domain.Common;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Domain.Users;
+using System.Security.Claims;
+
 
 namespace MVC.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
-        public static readonly List<User> MockUsers = new List<User>
-        {
-            new User
-            {
-                Id = "user1",
-                Name = "Іван Петренко",
-                Email = "ivan@example.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
-                CreatedAt = DateTime.Now.AddMonths(-6)
-            }
-        };
+        private readonly IUserService _userService;
+        private readonly IAuthService _authService;
 
-        public IActionResult Profile()
+        public UserController(IUserService userService, IAuthService authService)
         {
-            var currentUser = MockUsers.FirstOrDefault(u => u.Id == "user1");
-            if (currentUser == null)
+            _userService = userService;
+            _authService = authService;
+        }
+
+        public async Task<IActionResult> Profile()
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ApplicationUser? user = await _userService.GetByIdAsync(userId);
+
+            if (user == null)
             {
                 return NotFound(new { message = "Користувача не знайдено" });
             }
-            return View(currentUser);
+            return View(user);
         }
 
         [HttpPost]
-        public IActionResult UpdateProfile(string name, string email)
+        public async Task<IActionResult> UpdateProfile(string name, string email)
         {
-            var currentUser = MockUsers.FirstOrDefault(u => u.Id == "user1");
-            if (currentUser == null)
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ApplicationUser? user = await _userService.GetByIdAsync(userId);
+
+            if (user == null)
             {
                 return NotFound(new { message = "Користувача не знайдено" });
             }
 
+            string userName = user.UserName;
             if (!string.IsNullOrWhiteSpace(name))
             {
-                currentUser.Name = name;
+                userName = name;
             }
 
+            string userEmail = user.Email;
             if (!string.IsNullOrWhiteSpace(email))
             {
-                currentUser.Email = email;
+                userEmail = email;
             }
+
+            await _userService.UpdateUserAsync(userId, userName, userEmail);
 
             return RedirectToAction("Profile");
         }
 
         [HttpPost]
-        public IActionResult ChangePassword(string oldPassword, string newPassword)
+        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
         {
-            var currentUser = MockUsers.FirstOrDefault(u => u.Id == "user1");
-            if (currentUser == null)
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ApplicationUser? user = await _userService.GetByIdAsync(userId);
+
+            if (user == null)
             {
                 return NotFound(new { message = "Користувача не знайдено" });
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(oldPassword, currentUser.PasswordHash))
+            var result = await _userService.ChangePasswordAsync(userId, oldPassword, newPassword);
+
+            if (!result.Succeeded)
             {
-                TempData["Error"] = "Старий пароль невірний";
-                return RedirectToAction("Profile");
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+                
+                user = await _userService.GetByIdAsync(userId);
+                return View("Profile", user);
             }
 
-            currentUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             TempData["Success"] = "Пароль успішно змінено";
 
-            return RedirectToAction("Profile");
+            user = await _userService.GetByIdAsync(userId);
+            return RedirectToAction("Profile", user);
         }
     }
 }
