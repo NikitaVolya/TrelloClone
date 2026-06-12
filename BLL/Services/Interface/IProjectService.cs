@@ -25,5 +25,7 @@ namespace BLL.Services.Interface
         Task AddMemberAsync(int projectId, string memberId);
 
         Task RemoveMemberAsync(int projectId, string memberId);
+
+        Task<bool> CheckUserIsProjectMember(int projectId, string userId);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BLL.Services.Interface;
 using DAL.Repositories.Interfaces;
 using DAL.UnitOfWork.Interface;
+using Domain.Common;
 using TaskEntity = Domain.Tasks.Task;
 
 namespace BLL.Services
@@ -11,6 +12,8 @@ namespace BLL.Services
         private readonly IColumnRepository _columnRepository;
         private readonly IBoardRepository _boardRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly ITaskCommentRepository _taskCommentRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public TaskService(
@@ -18,6 +21,8 @@ namespace BLL.Services
             IColumnRepository columnRepository,
             IBoardRepository boardRepository,
             IProjectRepository projectRepository,
+            ITaskCommentRepository taskCommentRepository,
+            IUserRepository userRepository,
             IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
@@ -27,12 +32,10 @@ namespace BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<TaskEntity> CreateTaskAsync(string name, string description, int columnId, string userId)
+        public async Task<TaskEntity> CreateTaskAsync(string name, string? description, int boardId, int? columnId, string userId)
         {
-            var column = await _columnRepository.GetByIdAsync(columnId)
-                ?? throw new ArgumentException("Column does not exist");
 
-            var board = await _boardRepository.GetByIdAsync(column.BoardId)
+            var board = await _boardRepository.GetByIdAsync(boardId)
                 ?? throw new ArgumentException("Board does not exist");
 
             var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId);
@@ -44,7 +47,7 @@ namespace BLL.Services
                 Name = name,
                 Description = description,
                 ColumnId = columnId,
-                BoardId = column.BoardId,
+                BoardId = boardId,
                 CratedAt = DateTime.UtcNow
             };
 
@@ -100,6 +103,61 @@ namespace BLL.Services
 
             _taskRepository.Delete(task);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task LeaveTaskComment(int taskId, string userId, string text)
+        {
+            Domain.Tasks.Task? task = await _taskRepository.GetByIdAsync(taskId);
+            if (task == null)
+                throw new InvalidOperationException($"Task with id {taskId} does not exist.");
+
+            ApplicationUser? user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException($"User with id {userId} does not exist.");
+
+            Domain.Tasks.TaskComment comment = new Domain.Tasks.TaskComment
+            {
+                TaskId = taskId,
+                SenderId = userId,
+                Text = text,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await _taskCommentRepository.AddTaskCommentAsync(comment);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<Domain.Tasks.TaskComment>> GetTaskCommentsAsync(int taskId)
+        {
+            return await _taskCommentRepository.GetTaskCommentsAsync(taskId);
+        }
+
+        public async Task<Domain.Tasks.TaskAssignee> AssigneUser(int taskId, string userId)
+        {
+            if (await _taskRepository.GetTaskAssigneeAsync(taskId, userId) != null)
+            {
+                throw new InvalidOperationException($"User with id {taskId} is already assigneed to task with {taskId}");
+            }
+
+            Domain.Tasks.TaskAssignee assignee = new Domain.Tasks.TaskAssignee
+            {
+                TaskId = taskId,
+                UserId = userId
+            };
+
+            await _taskRepository.AddTaskAssigneeAsync(assignee);
+            return assignee;
+        }
+
+        public async Task DeassigneUser(int taskId, string userId)
+        {
+            Domain.Tasks.TaskAssignee? assignee = await _taskRepository.GetTaskAssigneeAsync(taskId, userId);
+            if (assignee == null)
+            {
+                throw new InvalidOperationException($"User with id {taskId} is not assigneed to task with {taskId}");
+            }
+
+            _taskRepository.RemoveTaskAssigneAsync(assignee);
         }
     }
 }

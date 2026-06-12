@@ -44,7 +44,8 @@ namespace BLL.Services
             var column = new Column
             {
                 Name = name,
-                BoardId = boardId
+                BoardId = boardId,
+                Order = 0
             };
 
             await _columnRepository.AddAsync(column);

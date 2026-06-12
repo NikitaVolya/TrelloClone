@@ -1,7 +1,6 @@
 using BLL.Services.Interface;
 using Domain.Common;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -12,12 +11,10 @@ namespace MVC.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IAuthService _authService;
 
-        public UserController(IUserService userService, IAuthService authService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _authService = authService;
         }
 
         public async Task<IActionResult> Profile()

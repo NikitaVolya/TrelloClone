@@ -15,5 +15,11 @@ namespace DAL.Repositories.Interfaces
         void Update(Domain.Tasks.Task task);
 
         void Delete(Domain.Tasks.Task task);
+
+        Task<Domain.Tasks.TaskAssignee?> GetTaskAssigneeAsync(int taskId, string userId);
+
+        Task AddTaskAssigneeAsync(Domain.Tasks.TaskAssignee taskAssignee);
+
+        void RemoveTaskAssigneAsync(Domain.Tasks.TaskAssignee taskAssignee);
     }
 }

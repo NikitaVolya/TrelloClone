@@ -153,5 +153,11 @@ namespace BLL.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
+        public async Task<bool> CheckUserIsProjectMember(int projectId, string userId)
+        {
+            ProjectMember? member = await _projectRepository.GetMemberAsync(projectId, userId);
+            return member != null;
+        }
+
     }
 }

@@ -12,7 +12,6 @@
             <small class="text-muted">Створено: @Model.CreatedAt.ToString("dd.MM.yyyy")</small>
         </div>
         <div>
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#inviteUserModal">Запросити користувача</button>
             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createColumnModal">+ Додати колонку</button>
         </div>
     </div>
@@ -220,30 +219,6 @@
     </div>
 </div>
 
-<!-- Invite User Modal -->
-<div class="modal fade" id="inviteUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-controller="Board" asp-action="InviteUser" method="post">
-                <input type="hidden" name="boardId" value="@Model.Id" />
-                <div class="modal-header">
-                    <h5 class="modal-title">Запросити користувача</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">User ID</label>
-                        <input type="text" class="form-control" name="userId" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                    <button type="submit" class="btn btn-primary">Відправити запрошення</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
     let draggedTask = null;

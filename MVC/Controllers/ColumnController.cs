@@ -1,55 +1,69 @@
-using Microsoft.AspNetCore.Mvc;
+using BLL.Services.Interface;
 using Domain.Boards;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
 
 namespace MVC.Controllers
 {
-
+    [Authorize]
     public class ColumnController : Controller
     {
+        private readonly IColumnService _columnService;
+        private readonly IBoardService _boardService;
+
+        public ColumnController(IColumnService columnService, IBoardService boardService)
+        {
+            _columnService = columnService;
+            _boardService = boardService;
+        }
 
         [HttpPost]
-        public IActionResult Create(Column newColumn)
+        public async Task<IActionResult> Create(Domain.Boards.Column newColumn)
         {
-            var board = BoardController.MockBoards.FirstOrDefault(b => b.Id == newColumn.BoardId);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var board = await _boardService.GetBoardByIdAsync(newColumn.BoardId);
             if (board == null)
             {
                 return NotFound(new { message = "Дошка не знайдена" });
             }
 
-            var allColumns = BoardController.MockBoards.SelectMany(b => b.Columns).ToList();
-            newColumn.Id = allColumns.Any() ? allColumns.Max(c => c.Id) + 1 : 1;
-            newColumn.Order = board.Columns.Any() ? board.Columns.Max(c => c.Order) + 1 : 0;
-            board.Columns.Add(newColumn);
+            await _columnService.CreateColumnAsync(newColumn.Name, newColumn.BoardId, userId);
 
             return RedirectToAction("Details", "Board", new { id = newColumn.BoardId });
         }
 
         [HttpPost]
-        public IActionResult Edit(int id, string? name, string? hexColor)
+        public async Task<IActionResult> Edit(int id, string? name, string? hexColor)
         {
             try
             {
-                var board = BoardController.MockBoards.FirstOrDefault(b => b.Columns.Any(c => c.Id == id));
-                if (board == null)
-                {
-                    return NotFound(new { message = "Дошка з такою колонкою не знайдена" });
-                }
-
-                var column = board.Columns.FirstOrDefault(c => c.Id == id);
+                Domain.Boards.Column? column = await _columnService.GetColumnByIdAsync(id);
                 if (column == null)
                 {
                     return NotFound(new { message = "Колонка не знайдена" });
                 }
 
+                Board? board = await _boardService.GetBoardByIdAsync(column.BoardId);
+                if (board == null)
+                {
+                    return NotFound(new { message = "Дошка з такою колонкою не знайдена" });
+                }
+
                 if (!string.IsNullOrWhiteSpace(name))
                 {
-                    column.Name = name;
+                    await _columnService.UpdateColumnAsync(id, name);
                 }
 
                 if (!string.IsNullOrWhiteSpace(hexColor))
                 {
                     column.hexColor = hexColor;
                 }
+
 
                 return RedirectToAction("Details", "Board", new { id = board.Id });
             }
@@ -60,38 +74,39 @@ namespace MVC.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var board = BoardController.MockBoards.FirstOrDefault(b => b.Columns.Any(c => c.Id == id));
-            if (board == null)
-            {
-                return NotFound(new { message = "Дошка з такою колонкою не знайдена" });
-            }
-
-            var column = board.Columns.FirstOrDefault(c => c.Id == id);
-            if (column != null)
-            {
-                board.Columns.Remove(column);
-                return RedirectToAction("Details", "Board", new { id = board.Id });
-            }
-            return BadRequest(new { message = "Колонка не знайдена" });
-        }
-
-        [HttpPost]
-        public IActionResult Reorder(int boardId, int columnId, int newOrder)
-        {
-            var board = BoardController.MockBoards.FirstOrDefault(b => b.Id == boardId);
-            if (board == null)
-            {
-                return NotFound(new { message = "Дошка не знайдена" });
-            }
-
-            var column = board.Columns.FirstOrDefault(c => c.Id == columnId);
+            Domain.Boards.Column? column = await _columnService.GetColumnByIdAsync(id);
             if (column == null)
             {
                 return NotFound(new { message = "Колонка не знайдена" });
             }
 
+            Board? board = await _boardService.GetBoardByIdAsync(column.BoardId);
+            if (board == null)
+            {
+                return NotFound(new { message = "Дошка з такою колонкою не знайдена" });
+            }
+
+            await _columnService.DeleteColumnAsync(id);
+            return RedirectToAction("Details", "Board", new { id = board.Id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Reorder(int boardId, int columnId, int newOrder)
+        {
+            Domain.Boards.Column? column = await _columnService.GetColumnByIdAsync(columnId);
+            if (column == null)
+            {
+                return NotFound(new { message = "Колонка не знайдена" });
+            }
+
+            Board? board = await _boardService.GetBoardByIdAsync(boardId);
+            if (board == null)
+            {
+                return NotFound(new { message = "Дошка з такою колонкою не знайдена" });
+            }
+            /*
             var oldOrder = column.Order;
 
             if (newOrder < oldOrder)
@@ -109,7 +124,7 @@ namespace MVC.Controllers
                 }
             }
 
-            column.Order = newOrder;
+            column.Order = newOrder;*/
 
             return Ok(new { message = "Порядок колонок оновлено" });
         }
