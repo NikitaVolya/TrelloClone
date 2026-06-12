@@ -1,3 +1,5 @@
+using BLL.Services;
+using BLL.Services.Interface;
 using DAL.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +17,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(
             );
     });
 
+builder.Services.AddScoped<IBoardService, BoardService>();
+builder.Services.AddScoped<IColumnService, ColumnService>();
+builder.Services.AddScoped<IInvitationService, InvitationService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -34,6 +44,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Register}/{id?}");
 
 app.Run();

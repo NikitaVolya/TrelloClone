@@ -1,7 +1,7 @@
 ﻿using DAL.Context;
 using DAL.Repositories.Interfaces;
 using Domain.Projects;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace DAL.Repositories
