@@ -365,3 +365,83 @@ body {
     .empty-state p {
         font-size: 14px;
     }
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    background: #111827;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.sidebar-section-title {
+    font-size: 12px;
+    opacity: 0.6;
+    margin: 10px 0;
+    text-transform: uppercase;
+}
+
+.sidebar-item {
+    padding: 10px;
+    border-radius: 8px;
+    color: #e5e7eb;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 5px;
+}
+
+    .sidebar-item:hover {
+        background: #1f2937;
+    }
+
+    .sidebar-item.active {
+        background: #2563eb;
+        color: white;
+    }
+
+    .sidebar-item.danger {
+        color: #f87171;
+    }
+
+/* MAIN */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background: #f3f4f6;
+}
+
+/* USER */
+.sidebar-user {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background: #2563eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}

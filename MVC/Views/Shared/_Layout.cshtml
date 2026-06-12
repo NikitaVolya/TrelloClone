@@ -3,35 +3,27 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — TrelloClon</title>
+    <title>@ViewData["Title"] — TralloClone</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%235865f2'/><rect x='4' y='8' width='7' height='16' rx='2' fill='white'/><rect x='13' y='8' width='7' height='10' rx='2' fill='white' opacity='.8'/><rect x='22' y='8' width='6' height='13' rx='2' fill='white' opacity='.6'/></svg>">
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MVC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-                <span class="brand-name">TrelloClon</span>
+
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <span class="brand-logo">📋</span>
+                <span class="brand-name">TralloClone</span>
             </div>
 
+            <!-- USER -->
             <div class="sidebar-user">
                 <div class="user-avatar">
                     @{
@@ -39,93 +31,65 @@
                     }
                     @initial
                 </div>
+
                 <div class="user-info">
                     <div class="user-name">@(User.Identity?.Name ?? "Користувач")</div>
                     <div class="user-role">Учасник</div>
                 </div>
             </div>
 
-            <div class="sidebar-divider"></div>
+            <hr />
 
-            <nav class="sidebar-nav">
-                <p class="nav-label">Навігація</p>
+            <!-- PROJECTS -->
+            <div class="sidebar-section-title">Проєкти</div>
 
-                <a class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "MyProjects" ? "active" : "")"
-                       asp-controller="Projects" asp-action="MyProjects">
-                    <span class="nav-icon">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M2 3a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm1 0v6h6V3H3zM10 3a1 1 0 011-1h6a1 1 0 011 1v3a1 1 0 01-1 1h-6a1 1 0 01-1-1V3zm1 0v3h6V3h-6zM2 12a1 1 0 011-1h6a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm1 0v5h6v-5H3zM10 9a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-6a1 1 0 01-1-1V9zm1 0v8h6V9h-6z" />
-                        </svg>
-                    </span>
-                    Мої проєкти
-                    <span class="nav-badge">3</span>
-                </a>
+            <a class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "MyProjects" ? "active" : "")"
+               asp-controller="Projects" asp-action="MyProjects">
+                Мої проєкти
+            </a>
 
-                <a class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && ViewContext.RouteData.Values["controller"]?.ToString() == "Projects" ? "active" : "")"
-                       asp-controller="Projects" asp-action="Index">
-                    <span class="nav-icon">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
-                        </svg>
-                    </span>
-                    Всі проєкти
-                </a>
+            <a class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+               asp-controller="Projects" asp-action="Index">
+                Всі проєкти
+            </a>
 
-                <div class="sidebar-divider"></div>
-                <p class="nav-label">Акаунт</p>
+            <hr />
 
-                <a class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")"
-                       asp-controller="Account" asp-action="Settings">
-                    <span class="nav-icon">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                        </svg>
-                    </span>
-                    Налаштування
-                </a>
+            <!-- NAVIGATION -->
+            <div class="sidebar-section-title">Навігація</div>
 
-                <a class="nav-item nav-item--danger" asp-controller="Account" asp-action="Logout">
-                    <span class="nav-icon">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
-                        </svg>
-                    </span>
-                    Вийти
-                </a>
-            </nav>
+            <a class="sidebar-item" asp-controller="Dashboard" asp-action="Index">
+                Дашборд
+            </a>
+
+            <a class="sidebar-item" asp-controller="Notifications" asp-action="Index">
+                Сповіщення
+            </a>
+
+            <hr />
+
+            <!-- ACCOUNT -->
+            <div class="sidebar-section-title">Акаунт</div>
+
+            <a class="sidebar-item" asp-controller="Account" asp-action="Settings">
+                Налаштування
+            </a>
+
+            <a class="sidebar-item danger" asp-controller="Account" asp-action="Logout">
+                Вийти
+            </a>
+
         </aside>
 
-        <div class="main-area">
-            <header class="topbar">
-                <div class="topbar-left">
-                    <h1 class="page-title">@(ViewData["Title"] ?? "Дошки")</h1>
-                </div>
-                <div class="topbar-right">
-                    @if (TempData["Success"] != null)
-                    {
-                        <div class="toast-success">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            @TempData["Success"]
-                        </div>
-                    }
-                    <a asp-controller="Projects" asp-action="Create" class="btn-create">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="16">
-                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
-                        Новий проєкт
-                    </a>
-                </div>
-            </header>
-
-            <main class="page-content">
-                @RenderBody()
-            </main>
-        </div>
+        <!-- MAIN -->
+        <main class="main-content">
+            @RenderBody()
+        </main>
 
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>
