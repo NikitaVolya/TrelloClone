@@ -22,6 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")
             );
+        options.LogTo(Console.WriteLine)
+        .EnableSensitiveDataLogging();
     });
 
 
@@ -39,6 +41,7 @@ builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IBoardService, BoardService>();
 builder.Services.AddScoped<IColumnService, ColumnService>();
@@ -69,6 +72,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

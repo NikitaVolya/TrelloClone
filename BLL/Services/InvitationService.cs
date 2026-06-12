@@ -12,16 +12,16 @@ namespace BLL.Services
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly IAuthService _authService;
+        private readonly IUserService _userService;
         private readonly IUnitOfWork _unitOfWork;
 
         public int InvitationDelayInHours => 5;
 
-        public InvitationService(IProjectRepository projectRepository, IInvitationRepository invitationRepository, IAuthService authService, IUnitOfWork unitOfWork)
+        public InvitationService(IProjectRepository projectRepository, IInvitationRepository invitationRepository, IUserService userService, IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
             _invitationRepository = invitationRepository;
-            _authService = authService;
+            _userService = userService;
             _unitOfWork = unitOfWork;
         }
 
@@ -31,7 +31,7 @@ namespace BLL.Services
             if (project == null)
                 throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
 
-            if (!(await _authService.UserExistsAsync(userId)))
+            if (!(await _userService.UserExistsAsync(userId)))
                 throw new InvalidOperationException($"User with id '{userId}' does not exist.");
 
             if (project.OwnerId != ownerId)
@@ -81,7 +81,7 @@ namespace BLL.Services
             if (project == null)
                 throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
 
-            if (!(await _authService.UserExistsAsync(userId)))
+            if (!(await _userService.UserExistsAsync(userId)))
                 throw new InvalidOperationException($"User with id '{userId}' does not exist.");
 
             Invitation? invitation = await GetInvitationAsync(projectId, userId);
@@ -108,7 +108,7 @@ namespace BLL.Services
             if (project == null)
                 throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
 
-            if (!(await _authService.UserExistsAsync(userId)))
+            if (!(await _userService.UserExistsAsync(userId)))
                 throw new InvalidOperationException($"User with id '{userId}' does not exist.");
 
             Invitation? invitation = await GetInvitationAsync(projectId, userId);
@@ -135,7 +135,7 @@ namespace BLL.Services
             if (project == null)
                 throw new InvalidOperationException($"Project with id '{projectId}' does not exist.");
 
-            if (!(await _authService.UserExistsAsync(userId)))
+            if (!(await _userService.UserExistsAsync(userId)))
                 throw new InvalidOperationException($"User with id '{userId}' does not exist.");
 
             return await _invitationRepository.GetAsync(projectId, userId);

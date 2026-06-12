@@ -13,6 +13,7 @@ namespace BLL.Services.Interface
         Task<Project?> GetByIdAsync(int id);
 
         Task<List<Project>> GetUserProjectsAsync(string userId);
+        Task<List<Project>> GetOwnerProjectsAsync(string ownerId);
 
         Task<bool> DeleteAsync(int projectId, string userId);
 

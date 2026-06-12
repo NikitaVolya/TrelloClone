@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Projects;
+﻿using Domain.Projects;
 using Domain.Boards;
 using Microsoft.AspNetCore.Mvc;
-using MVC.Models;
+using BLL.Services.Interface;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+
 
 
 namespace MVC.Controllers
 {
+    [Authorize]
     public class ProjectController : Controller
     {
+        private readonly IProjectService _projectService;
+
         public static readonly List<Project> MockProjects = new List<Project>
         {
             new Project
@@ -54,15 +56,28 @@ namespace MVC.Controllers
             }
         };
 
-        public ActionResult AllProjects()
+
+        public ProjectController(IProjectService projectService)
         {
-            return View("Index", MockProjects);
+            _projectService = projectService;
         }
 
-        public ActionResult Index()
+        public async Task<ActionResult> AllProjects()
         {
-            
-            return View(MockProjects);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            List<Project> projects = await _projectService.GetUserProjectsAsync(userId);
+
+            return View("Index", projects);
+        }
+
+        public async Task<ActionResult> Index()
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            List<Project> projects = await _projectService.GetUserProjectsAsync(userId);
+
+            return View(projects);
         }
 
         public ActionResult Detail(int id) { 
@@ -74,29 +89,19 @@ namespace MVC.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(Project newProject) {
-            newProject.Id = MockProjects.Count + 1;
-            newProject.CreatedAt = DateTime.Now;
-            newProject.OwnerId = "user1";
-            newProject.Boards = new List<Board>();
-            newProject.Members = new List<ProjectMember>();
-            newProject.Invitations = new List<Invitation>();
-            MockProjects.Add(newProject);
+        public async Task<ActionResult> Create(Project newProject) {
+
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _projectService.CreateAsync(newProject.Title, newProject.Description, userId);
+
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public ActionResult Update(int id, string title, string description)
+        public async Task<ActionResult> Update(int id, string title, string description)
         {
-            var project = MockProjects.FirstOrDefault(p => p.Id == id);
-            if (project == null)
-            {
-                return NotFound(new { message = "Проект не знайдено" });
-            }
-
-            project.Title = title;
-            project.Description = description;
-
+            await _projectService.UpdateAsync(id, title, description);
             return RedirectToAction("Detail", new { id });
         }
 
@@ -165,13 +170,12 @@ namespace MVC.Controllers
             return RedirectToAction("Detail", new { id = projectId });
         }
 
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var project = MockProjects.FirstOrDefault(p => p.Id == id);
-                        if (project != null)
-            {
-                MockProjects.Remove(project);
-            }
+
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _projectService.DeleteAsync(id, userId);
             return RedirectToAction("Index");
         }
     }

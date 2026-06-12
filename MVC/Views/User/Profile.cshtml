@@ -1,4 +1,4 @@
-@model Domain.Users.User
+@model Domain.Common.ApplicationUser
 
 @{
     Layout = "_Layout";
@@ -35,7 +35,7 @@
                     <form asp-controller="User" asp-action="UpdateProfile" method="post">
                         <div class="mb-3">
                             <label for="name" class="form-label">Ім'я</label>
-                            <input type="text" class="form-control" id="name" name="name" value="@Model.Name" required>
+                            <input type="text" class="form-control" id="name" name="name" value="@Model.UserName" required>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
