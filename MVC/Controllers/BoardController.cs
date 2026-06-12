@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Domain.Boards;
 using BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace MVC.Controllers
 {
+    [Authorize]
     public class BoardController : Controller
     {
         private readonly IBoardService _boardService;
@@ -25,6 +27,8 @@ namespace MVC.Controllers
             }
 
             board.Columns = board.Columns.OrderBy(c => c.Order).ToList();
+
+            ViewBag.Comments = await _boardService.GetBoardTaskComments(id);
 
             return View(board);
         }

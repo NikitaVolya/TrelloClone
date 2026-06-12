@@ -1,5 +1,6 @@
 ﻿using DAL.Context;
 using DAL.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace DAL.Repositories
@@ -15,7 +16,14 @@ namespace DAL.Repositories
 
         public async Task<List<Domain.Tasks.TaskComment>> GetTaskCommentsAsync(int taskId)
         {
-            return _context.TaskComments.Where(tc => tc.TaskId == taskId).ToList();
+            return await _context.TaskComments.Where(tc => tc.TaskId == taskId).ToListAsync();
+        }
+        public async Task<List<Domain.Tasks.TaskComment>> GetTaskCommentsByBoardIdAsync(int boardId)
+        {
+            return await _context.TaskComments
+                .Include(c => c.Sender)
+                .Include(c => c.Task)
+                .Where(c => c.Task.BoardId == boardId).ToListAsync();
         }
 
         public async Task AddTaskCommentAsync(Domain.Tasks.TaskComment comment)

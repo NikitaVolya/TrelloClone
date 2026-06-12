@@ -50,8 +50,10 @@ namespace MVC.Controllers
             Column? column = columns.OrderBy(cl => cl.Order).FirstOrDefault();
 
             Domain.Tasks.Task? task = await _taskService.CreateTaskAsync(newTask.Name, newTask.Description, newTask.BoardId, column?.Id, userId);
+            await _taskService.SetTaskDeadline(task.Id, newTask.Deadline);
+            await _taskService.MoveTaskAsync(task.Id, newTask.ColumnId, userId);
 
-            return RedirectToAction("Details", "Board", new { id = newTask.BoardId });
+            return RedirectToAction("Details", "Board", new { id = task.BoardId });
         }
 
         [HttpPost]
@@ -74,19 +76,15 @@ namespace MVC.Controllers
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            Domain.Tasks.Task? task = await _taskService.GetTaskByIdAsync(id);
-            if (task == null)
-            {
-                return NotFound("Task not found");
-            }
-
             await _taskService.MoveTaskAsync(id, columnId, userId);
 
-            return Ok(new { message = "Таска переміщена", task });
+            Domain.Tasks.Task? task = await _taskService.GetTaskByIdAsync(id);
+
+            return Ok(new { message = "Таска переміщена" });
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddComment(int taskId, string text, string senderId)
+        public async Task<IActionResult> AddComment(int taskId, string text)
         {
 
             Domain.Tasks.Task? task = await _taskService.GetTaskByIdAsync(taskId);
@@ -95,7 +93,9 @@ namespace MVC.Controllers
                 return NotFound(new { message = "Таска не знайдена" });
             }
 
-            await _taskService.LeaveTaskComment(taskId, senderId, text);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _taskService.LeaveTaskComment(taskId, userId, text);
 
             return RedirectToAction("Details", "Board", new { id = task.BoardId });
         }

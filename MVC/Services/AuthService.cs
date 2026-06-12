@@ -30,8 +30,7 @@ namespace MVC.Services
                 Email = email
             };
 
-            IdentityResult result =
-                await _userManager.CreateAsync(user, password);
+            IdentityResult result = await _userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
                 return null;

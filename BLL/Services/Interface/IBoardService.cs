@@ -7,5 +7,6 @@
         Task<IEnumerable<Domain.Boards.Board>> GetBoardsForProjectAsync(int projectId);
         Task UpdateBoardAsync(int boardId, string title);
         Task DeleteBoardAsync(int boardId);
+        Task<List<Domain.Tasks.TaskComment>> GetBoardTaskComments(int boardId);
     }
 }

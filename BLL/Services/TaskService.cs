@@ -29,6 +29,8 @@ namespace BLL.Services
             _columnRepository = columnRepository;
             _boardRepository = boardRepository;
             _projectRepository = projectRepository;
+            _taskCommentRepository = taskCommentRepository;
+            _userRepository = userRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -76,20 +78,24 @@ namespace BLL.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task MoveTaskAsync(int taskId, int newColumnId, string userId)
+        public async Task MoveTaskAsync(int taskId, int? newColumnId, string userId)
         {
             var task = await _taskRepository.GetByIdAsync(taskId)
                 ?? throw new ArgumentException("Task not found");
 
-            var newColumn = await _columnRepository.GetByIdAsync(newColumnId)
-                ?? throw new ArgumentException("Target column does not exist");
+            if (newColumnId != null)
+            {
+                var newColumn = await _columnRepository.GetByIdAsync(newColumnId.Value)
+                    ?? throw new ArgumentException("Target column does not exist");
 
-            var board = await _boardRepository.GetByIdAsync(newColumn.BoardId)
-                ?? throw new ArgumentException("Board does not exist");
+                var board = await _boardRepository.GetByIdAsync(newColumn.BoardId)
+                    ?? throw new ArgumentException("Board does not exist");
 
-            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId);
-            if (board.Project.OwnerId != userId && member == null)
-                throw new UnauthorizedAccessException("User has no access to this project");
+
+                var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId);
+                if (board.Project.OwnerId != userId && member == null)
+                    throw new UnauthorizedAccessException("User has no access to this project");
+            }
 
             task.ColumnId = newColumnId;
             _taskRepository.Update(task);
@@ -158,6 +164,16 @@ namespace BLL.Services
             }
 
             _taskRepository.RemoveTaskAssigneAsync(assignee);
+        }
+        public async Task SetTaskDeadline(int taskId, DateTime? deadline)
+        {
+            Domain.Tasks.Task? task = await _taskRepository.GetByIdAsync(taskId);
+            if (task == null)
+                throw new InvalidOperationException($"Task with id {taskId} does not exist.");
+
+            task.Deadline = deadline;
+            _taskRepository.Update(task);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

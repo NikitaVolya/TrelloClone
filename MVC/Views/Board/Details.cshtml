@@ -89,7 +89,7 @@
                                                     @foreach (var comment in currentTaskComments)
                                                     {
                                                         <div class="mb-2 p-2 border rounded">
-                                                            <small class="text-muted">@comment.SenderId - @comment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                                            <small class="text-muted">@comment.Sender?.UserName - @comment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
                                                             <p class="mb-0">@comment.Text</p>
                                                         </div>
                                                     }
@@ -102,7 +102,6 @@
 
                                             <form asp-controller="Task" asp-action="AddComment" method="post">
                                                 <input type="hidden" name="taskId" value="@task.Id" />
-                                                <input type="hidden" name="senderId" value="current-user" />
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" name="text" placeholder="Додати коментар..." required />
                                                     <button type="submit" class="btn btn-primary">Відправити</button>

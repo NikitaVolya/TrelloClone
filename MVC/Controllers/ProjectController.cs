@@ -34,7 +34,7 @@ namespace MVC.Controllers
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            List<Project> projects = await _projectService.GetUserProjectsAsync(userId);
+            List<Project> projects = await _projectService.GetOwnerProjectsAsync(userId);
 
             return View(projects);
         }
