@@ -76,7 +76,8 @@
             <!-- ACCOUNT -->
             <div class="sidebar-section-title">Акаунт</div>
 
-            <a class="sidebar-item" asp-controller="Account" asp-action="Settings">
+            <a class="sidebar-item @(controller == "User" && action == "Profile" ? "active" : "")"
+               asp-controller="User" asp-action="Profile">
                 Налаштування
             </a>
 

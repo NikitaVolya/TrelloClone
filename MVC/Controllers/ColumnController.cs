@@ -18,6 +18,7 @@ namespace MVC.Controllers
 
             var allColumns = BoardController.MockBoards.SelectMany(b => b.Columns).ToList();
             newColumn.Id = allColumns.Any() ? allColumns.Max(c => c.Id) + 1 : 1;
+            newColumn.Order = board.Columns.Any() ? board.Columns.Max(c => c.Order) + 1 : 0;
             board.Columns.Add(newColumn);
 
             return RedirectToAction("Details", "Board", new { id = newColumn.BoardId });
@@ -74,6 +75,43 @@ namespace MVC.Controllers
                 return RedirectToAction("Details", "Board", new { id = board.Id });
             }
             return BadRequest(new { message = "Колонка не знайдена" });
+        }
+
+        [HttpPost]
+        public IActionResult Reorder(int boardId, int columnId, int newOrder)
+        {
+            var board = BoardController.MockBoards.FirstOrDefault(b => b.Id == boardId);
+            if (board == null)
+            {
+                return NotFound(new { message = "Дошка не знайдена" });
+            }
+
+            var column = board.Columns.FirstOrDefault(c => c.Id == columnId);
+            if (column == null)
+            {
+                return NotFound(new { message = "Колонка не знайдена" });
+            }
+
+            var oldOrder = column.Order;
+
+            if (newOrder < oldOrder)
+            {
+                foreach (var col in board.Columns.Where(c => c.Order >= newOrder && c.Order < oldOrder))
+                {
+                    col.Order++;
+                }
+            }
+            else if (newOrder > oldOrder)
+            {
+                foreach (var col in board.Columns.Where(c => c.Order > oldOrder && c.Order <= newOrder))
+                {
+                    col.Order--;
+                }
+            }
+
+            column.Order = newOrder;
+
+            return Ok(new { message = "Порядок колонок оновлено" });
         }
     }
 }

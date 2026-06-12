@@ -1,0 +1,91 @@
+@model Domain.Users.User
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Профіль користувача";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>Редагування профілю</h2>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Зміна інформації -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Особиста інформація</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="User" asp-action="UpdateProfile" method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Ім'я</label>
+                            <input type="text" class="form-control" id="name" name="name" value="@Model.Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="@Model.Email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Зміна паролю -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Зміна паролю</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="User" asp-action="ChangePassword" method="post" id="passwordForm">
+                        <div class="mb-3">
+                            <label for="oldPassword" class="form-label">Старий пароль</label>
+                            <input type="password" class="form-control" id="oldPassword" name="oldPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Новий пароль</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" minlength="6" required>
+                            <small class="text-muted">Мінімум 6 символів</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Підтвердити новий пароль</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Змінити пароль</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a asp-controller="Project" asp-action="Index" class="btn btn-secondary">Повернутися до проєктів</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            e.preventDefault();
+            alert('Новий пароль та підтвердження не співпадають');
+        }
+    });
+</script>

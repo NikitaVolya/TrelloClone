@@ -18,10 +18,10 @@
     </div>
 
     <!-- Kanban Board -->
-    <div class="row flex-nowrap overflow-auto" style="min-height: 70vh;">
+    <div class="row flex-nowrap overflow-auto" id="kanban-board" style="min-height: 70vh;">
         @foreach (var column in Model.Columns)
         {
-            <div class="col-md-3 mb-3">
+            <div class="col-md-3 mb-3 column-container" draggable="true" data-column-id="@column.Id" data-column-order="@column.Order">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center" style="background-color: @column.hexColor;">
                         <h5 class="mb-0">@column.Name</h5>
@@ -247,14 +247,16 @@
 
 <script>
     let draggedTask = null;
+    let draggedColumn = null;
 
-    // Drag start
+    // Task drag and drop
     document.querySelectorAll('.task-card').forEach(card => {
         card.addEventListener('dragstart', function(e) {
             draggedTask = this;
             this.style.opacity = '0.5';
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/html', this.innerHTML);
+            e.stopPropagation();
         });
 
         card.addEventListener('dragend', function(e) {
@@ -262,12 +264,14 @@
         });
     });
 
-    // Drop zones
+    // Task drop zones
     document.querySelectorAll('.column-drop-zone').forEach(zone => {
         zone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            this.style.backgroundColor = '#f0f0f0';
+            if (draggedTask) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                this.style.backgroundColor = '#f0f0f0';
+            }
         });
 
         zone.addEventListener('dragleave', function(e) {
@@ -275,14 +279,14 @@
         });
 
         zone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.style.backgroundColor = '';
-
             if (draggedTask) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.backgroundColor = '';
+
                 const taskId = draggedTask.dataset.taskId;
                 const newColumnId = this.dataset.columnId;
 
-                // Move task via AJAX
                 fetch('/Task/Move', {
                     method: 'POST',
                     headers: {
@@ -293,13 +297,90 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.message) {
-                        // Reload page to show updated state
                         location.reload();
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Помилка при переміщенні таски');
+                });
+            }
+        });
+    });
+
+    // Column drag and drop
+    document.querySelectorAll('.column-container').forEach(container => {
+        container.addEventListener('dragstart', function(e) {
+            draggedColumn = this;
+            this.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        container.addEventListener('dragend', function(e) {
+            this.style.opacity = '1';
+            document.querySelectorAll('.column-container').forEach(c => {
+                c.style.borderLeft = '';
+                c.style.borderRight = '';
+            });
+        });
+
+        container.addEventListener('dragover', function(e) {
+            if (draggedColumn && draggedColumn !== this) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+
+                const rect = this.getBoundingClientRect();
+                const midpoint = rect.left + rect.width / 2;
+
+                if (e.clientX < midpoint) {
+                    this.style.borderLeft = '3px solid #007bff';
+                    this.style.borderRight = '';
+                } else {
+                    this.style.borderRight = '3px solid #007bff';
+                    this.style.borderLeft = '';
+                }
+            }
+        });
+
+        container.addEventListener('dragleave', function(e) {
+            this.style.borderLeft = '';
+            this.style.borderRight = '';
+        });
+
+        container.addEventListener('drop', function(e) {
+            if (draggedColumn && draggedColumn !== this) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                this.style.borderLeft = '';
+                this.style.borderRight = '';
+
+                const draggedColumnId = draggedColumn.dataset.columnId;
+                const draggedOrder = parseInt(draggedColumn.dataset.columnOrder);
+                const targetOrder = parseInt(this.dataset.columnOrder);
+
+                const rect = this.getBoundingClientRect();
+                const midpoint = rect.left + rect.width / 2;
+                const newOrder = e.clientX < midpoint ? targetOrder : targetOrder + 1;
+
+                const boardId = @Model.Id;
+
+                fetch('/Column/Reorder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `boardId=${boardId}&columnId=${draggedColumnId}&newOrder=${newOrder}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Помилка при переміщенні колонки');
                 });
             }
         });
