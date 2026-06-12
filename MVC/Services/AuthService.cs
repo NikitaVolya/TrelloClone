@@ -1,11 +1,12 @@
 ﻿
+using BLL.Services.Interface;
 using Domain.Common;
 using Microsoft.AspNetCore.Identity;
 
 
 namespace MVC.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -16,6 +17,21 @@ namespace MVC.Services
         {
             _userManager = userManager;
             _signInManager = signInManager;
+        }
+
+        public async Task<ApplicationUser?> GetUserByIdAsync(string userId)
+        {
+            return await _userManager.FindByIdAsync(userId);
+        }
+
+        public async Task<bool> UserExistsAsync(string userId)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+            if (user == null) { 
+                return false;
+            } else {
+                return false;
+            }
         }
 
         public async Task<ApplicationUser?> RegisterAsync(
