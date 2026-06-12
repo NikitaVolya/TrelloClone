@@ -1,49 +1,64 @@
-﻿using DAL.UnitOfWork.Interface;
+﻿using BLL.Services.Interface;
+using DAL.Repositories.Interfaces;
+using DAL.UnitOfWork.Interface;
 using Domain.Boards;
-using TrelloClone.BLL.Services.Interface;
 
-public class BoardService : IBoardService
+namespace BLL.Services
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public BoardService(IUnitOfWork unitOfWork)
+    public class BoardService : IBoardService
     {
-        _unitOfWork = unitOfWork;
-    }
+        private readonly IBoardRepository _boardRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-    public async Task<Board> CreateBoardAsync(string name, Guid ownerId)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Board name cannot be empty");
+        public BoardService(IBoardRepository boardRepository, IUnitOfWork unitOfWork)
+        {
+            _boardRepository = boardRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-        var board = new Board { Name = name, OwnerId = ownerId };
-        await _unitOfWork.Boards.AddAsync(board);
-        await _unitOfWork.SaveChangesAsync();
-        return board;
-    }
+        public async Task<Board> CreateBoardAsync(string title, int projectId)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                throw new ArgumentException("Board title cannot be empty");
 
-    public Task<Board?> GetBoardByIdAsync(int boardId) =>
-        _unitOfWork.Boards.GetByIdAsync(boardId);
+            var board = new Board
+            {
+                Title = title,
+                ProjectId = projectId,
+                CreatedAt = DateTime.UtcNow
+            };
 
-    public Task<IEnumerable<Board>> GetBoardsForUserAsync(Guid userId) =>
-        _unitOfWork.Boards.GetByOwnerIdAsync(userId);
+            await _boardRepository.AddAsync(board);
+            await _unitOfWork.SaveChangesAsync();
+            return board;
+        }
 
-    public async Task UpdateBoardAsync(int boardId, string name)
-    {
-        var board = await _unitOfWork.Boards.GetByIdAsync(boardId)
-            ?? throw new ArgumentException("Board not found");
+        public Task<Board?> GetBoardByIdAsync(int boardId) =>
+            _boardRepository.GetByIdAsync(boardId);
 
-        board.Name = name;
-        _unitOfWork.Boards.Update(board);
-        await _unitOfWork.SaveChangesAsync();
-    }
+        public async Task<IEnumerable<Board>> GetBoardsForProjectAsync(int projectId) =>
+            await _boardRepository.GetProjectBoardsAsync(projectId);
 
-    public async Task DeleteBoardAsync(int boardId)
-    {
-        var board = await _unitOfWork.Boards.GetByIdAsync(boardId)
-            ?? throw new ArgumentException("Board not found");
+        public async Task UpdateBoardAsync(int boardId, string title)
+        {
+            var board = await _boardRepository.GetByIdAsync(boardId)
+                ?? throw new ArgumentException("Board not found");
 
-        _unitOfWork.Boards.Delete(board);
-        await _unitOfWork.SaveChangesAsync();
+            if (string.IsNullOrWhiteSpace(title))
+                throw new ArgumentException("Board title cannot be empty");
+
+            board.Title = title;
+            _boardRepository.Update(board);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteBoardAsync(int boardId)
+        {
+            var board = await _boardRepository.GetByIdAsync(boardId)
+                ?? throw new ArgumentException("Board not found");
+
+            _boardRepository.Delete(board);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

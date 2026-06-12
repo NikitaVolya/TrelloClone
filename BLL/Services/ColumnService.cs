@@ -1,53 +1,72 @@
-﻿using DAL.UnitOfWork.Interface;
+﻿using BLL.Services.Interface;
+using DAL.Repositories.Interfaces;
+using DAL.UnitOfWork.Interface;
 using Domain.Boards;
-using TrelloClone.BLL.Services.Interface;
 
-public class ColumnService : IColumnService
+namespace BLL.Services
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public ColumnService(IUnitOfWork unitOfWork)
+    public class ColumnService : IColumnService
     {
-        _unitOfWork = unitOfWork;
-    }
+        private readonly IColumnRepository _columnRepository;
+        private readonly IBoardRepository _boardRepository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-    public async Task<Column> CreateColumnAsync(string name, int boardId, Guid userId)
-    {
-        var board = await _unitOfWork.Boards.GetByIdAsync(boardId)
-            ?? throw new ArgumentException("Board does not exist");
+        public ColumnService(
+            IColumnRepository columnRepository,
+            IBoardRepository boardRepository,
+            IProjectRepository projectRepository,
+            IUnitOfWork unitOfWork)
+        {
+            _columnRepository = columnRepository;
+            _boardRepository = boardRepository;
+            _projectRepository = projectRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-        var hasAccess = await _unitOfWork.Projects.HasAccessAsync(board.ProjectId, userId);
-        if (!hasAccess)
-            throw new UnauthorizedAccessException("User has no access to this board");
+        public async Task<Column> CreateColumnAsync(string name, int boardId, Guid userId)
+        {
+            var board = await _boardRepository.GetByIdAsync(boardId)
+                ?? throw new ArgumentException("Board does not exist");
 
-        var column = new Column { Name = name, BoardId = boardId };
-        await _unitOfWork.Columns.AddAsync(column);
-        await _unitOfWork.SaveChangesAsync();
-        return column;
-    }
+            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId.ToString());
+            if (board.Project.OwnerId != userId.ToString() && member == null)
+                throw new UnauthorizedAccessException("User has no access to this board");
 
-    public Task<Column?> GetColumnByIdAsync(int columnId) =>
-        _unitOfWork.Columns.GetByIdAsync(columnId);
+            var column = new Column
+            {
+                Name = name,
+                BoardId = boardId
+            };
 
-    public Task<IEnumerable<Column>> GetColumnsForBoardAsync(int boardId) =>
-        _unitOfWork.Columns.GetByBoardIdAsync(boardId);
+            await _columnRepository.AddAsync(column);
+            await _unitOfWork.SaveChangesAsync();
+            return column;
+        }
 
-    public async Task UpdateColumnAsync(int columnId, string name)
-    {
-        var column = await _unitOfWork.Columns.GetByIdAsync(columnId)
-            ?? throw new ArgumentException("Column not found");
+        public Task<Column?> GetColumnByIdAsync(int columnId) =>
+            _columnRepository.GetByIdAsync(columnId);
 
-        column.Name = name;
-        _unitOfWork.Columns.Update(column);
-        await _unitOfWork.SaveChangesAsync();
-    }
+        public async Task<IEnumerable<Column>> GetColumnsForBoardAsync(int boardId) =>
+            await _columnRepository.GetBoardColumnsAsync(boardId);
 
-    public async Task DeleteColumnAsync(int columnId)
-    {
-        var column = await _unitOfWork.Columns.GetByIdAsync(columnId)
-            ?? throw new ArgumentException("Column not found");
+        public async Task UpdateColumnAsync(int columnId, string name)
+        {
+            var column = await _columnRepository.GetByIdAsync(columnId)
+                ?? throw new ArgumentException("Column not found");
 
-        _unitOfWork.Columns.Delete(column);
-        await _unitOfWork.SaveChangesAsync();
+            column.Name = name;
+            _columnRepository.Update(column);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteColumnAsync(int columnId)
+        {
+            var column = await _columnRepository.GetByIdAsync(columnId)
+                ?? throw new ArgumentException("Column not found");
+
+            _columnRepository.Delete(column);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }
