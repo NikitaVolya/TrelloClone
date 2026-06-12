@@ -53,11 +53,18 @@ namespace MVC.Controllers
                 Invitations = new List<Invitation>()
             }
         };
+
+        public ActionResult AllProjects()
+        {
+            return View("Index", MockProjects);
+        }
+
         public ActionResult Index()
         {
             
             return View(MockProjects);
         }
+
         public ActionResult Detail(int id) { 
             var project = MockProjects.FirstOrDefault(p => p.Id == id);
             if (project == null) { 

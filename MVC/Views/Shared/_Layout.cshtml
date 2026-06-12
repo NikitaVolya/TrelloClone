@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@{
+    string? controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    string? action = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="utf-8" />
@@ -43,13 +48,13 @@
             <!-- PROJECTS -->
             <div class="sidebar-section-title">Проєкти</div>
 
-            <a class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "MyProjects" ? "active" : "")"
-               asp-controller="Projects" asp-action="MyProjects">
+            <a class="sidebar-item @(controller == "Project" && action == "Index" ? "active" : "")"
+               asp-controller="Project" asp-action="Index">
                 Мої проєкти
             </a>
 
-            <a class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-               asp-controller="Projects" asp-action="Index">
+            <a class="sidebar-item @(controller == "Project" && action == "AllProjects" ? "active" : "")"
+               asp-controller="Project" asp-action="AllProjects">
                 Всі проєкти
             </a>
 
