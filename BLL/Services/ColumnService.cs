@@ -24,13 +24,13 @@ namespace BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Column> CreateColumnAsync(string name, int boardId, Guid userId)
+        public async Task<Column> CreateColumnAsync(string name, int boardId, string userId)
         {
             var board = await _boardRepository.GetByIdAsync(boardId)
                 ?? throw new ArgumentException("Board does not exist");
 
-            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId.ToString());
-            if (board.Project.OwnerId != userId.ToString() && member == null)
+            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId);
+            if (board.Project.OwnerId != userId && member == null)
                 throw new UnauthorizedAccessException("User has no access to this board");
 
             var column = new Column

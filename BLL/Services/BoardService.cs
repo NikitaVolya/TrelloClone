@@ -2,24 +2,31 @@
 using DAL.Repositories.Interfaces;
 using DAL.UnitOfWork.Interface;
 using Domain.Boards;
+using Domain.Projects;
 
 namespace BLL.Services
 {
     public class BoardService : IBoardService
     {
         private readonly IBoardRepository _boardRepository;
+        private readonly IProjectRepository _projectRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BoardService(IBoardRepository boardRepository, IUnitOfWork unitOfWork)
+        public BoardService(IBoardRepository boardRepository, IUnitOfWork unitOfWork, IProjectRepository projectRepository)
         {
             _boardRepository = boardRepository;
             _unitOfWork = unitOfWork;
+            _projectRepository = projectRepository;
         }
 
         public async Task<Board> CreateBoardAsync(string title, int projectId)
         {
             if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("Board title cannot be empty");
+
+            Project? project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+                throw new InvalidOperationException($"Project with id: {projectId} does not exists.");
 
             var board = new Board
             {

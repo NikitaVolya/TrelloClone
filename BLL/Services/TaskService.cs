@@ -27,7 +27,7 @@ namespace BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<TaskEntity> CreateTaskAsync(string name, string description, int columnId, Guid userId)
+        public async Task<TaskEntity> CreateTaskAsync(string name, string description, int columnId, string userId)
         {
             var column = await _columnRepository.GetByIdAsync(columnId)
                 ?? throw new ArgumentException("Column does not exist");
@@ -35,8 +35,8 @@ namespace BLL.Services
             var board = await _boardRepository.GetByIdAsync(column.BoardId)
                 ?? throw new ArgumentException("Board does not exist");
 
-            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId.ToString());
-            if (board.Project.OwnerId != userId.ToString() && member == null)
+            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId);
+            if (board.Project.OwnerId != userId && member == null)
                 throw new UnauthorizedAccessException("User has no access to this project");
 
             var task = new TaskEntity
@@ -73,7 +73,7 @@ namespace BLL.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task MoveTaskAsync(int taskId, int newColumnId, Guid userId)
+        public async Task MoveTaskAsync(int taskId, int newColumnId, string userId)
         {
             var task = await _taskRepository.GetByIdAsync(taskId)
                 ?? throw new ArgumentException("Task not found");
@@ -84,8 +84,8 @@ namespace BLL.Services
             var board = await _boardRepository.GetByIdAsync(newColumn.BoardId)
                 ?? throw new ArgumentException("Board does not exist");
 
-            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId.ToString());
-            if (board.Project.OwnerId != userId.ToString() && member == null)
+            var member = await _projectRepository.GetMemberAsync(board.ProjectId, userId);
+            if (board.Project.OwnerId != userId && member == null)
                 throw new UnauthorizedAccessException("User has no access to this project");
 
             task.ColumnId = newColumnId;
