@@ -1,9 +1,9 @@
 using BLL.Services.Interface;
 using Domain.Common;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using MVC.Models.Profile;
 
 
 namespace MVC.Controllers
@@ -12,12 +12,10 @@ namespace MVC.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IAuthService _authService;
 
-        public UserController(IUserService userService, IAuthService authService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _authService = authService;
         }
 
         public async Task<IActionResult> Profile()
@@ -61,17 +59,28 @@ namespace MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ApplicationUser? user = await _userService.GetByIdAsync(userId);
+
 
             if (user == null)
             {
                 return NotFound(new { message = "Користувача не знайдено" });
             }
 
-            var result = await _userService.ChangePasswordAsync(userId, oldPassword, newPassword);
+            if (!ModelState.IsValid)
+            {
+                foreach (var field in ModelState.Where(x => x.Value.Errors.Count > 0))
+                {
+                    ViewData[field.Key.ToString()] = string.Join('\n', field.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                }
+
+                return View("Profile", user);
+            }
+
+            var result = await _userService.ChangePasswordAsync(userId, model.CurrentPassword, model.NewPassword);
 
             if (!result.Succeeded)
             {

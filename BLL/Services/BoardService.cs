@@ -10,13 +10,15 @@ namespace BLL.Services
     {
         private readonly IBoardRepository _boardRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly ITaskCommentRepository _taskCommentRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BoardService(IBoardRepository boardRepository, IUnitOfWork unitOfWork, IProjectRepository projectRepository)
+        public BoardService(IBoardRepository boardRepository, IUnitOfWork unitOfWork, IProjectRepository projectRepository, ITaskCommentRepository taskCommentRepository)
         {
             _boardRepository = boardRepository;
             _unitOfWork = unitOfWork;
             _projectRepository = projectRepository;
+            _taskCommentRepository = taskCommentRepository;
         }
 
         public async Task<Board> CreateBoardAsync(string title, int projectId)
@@ -66,6 +68,10 @@ namespace BLL.Services
 
             _boardRepository.Delete(board);
             await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task<List<Domain.Tasks.TaskComment>> GetBoardTaskComments(int boardId)
+        {
+            return await _taskCommentRepository.GetTaskCommentsByBoardIdAsync(boardId);
         }
     }
 }

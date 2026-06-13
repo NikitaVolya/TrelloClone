@@ -30,8 +30,7 @@ namespace MVC.Services
                 Email = email
             };
 
-            IdentityResult result =
-                await _userManager.CreateAsync(user, password);
+            IdentityResult result = await _userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
                 return null;
@@ -41,7 +40,8 @@ namespace MVC.Services
 
         public async Task<bool> LoginAsync(
             string email,
-            string password)
+            string password,
+            bool rememberMe)
         {
             ApplicationUser? user =
                 await _userManager.FindByEmailAsync(email);
@@ -53,7 +53,7 @@ namespace MVC.Services
                 await _signInManager.PasswordSignInAsync(
                     user,
                     password,
-                    isPersistent: false,
+                    rememberMe,
                     lockoutOnFailure: false);
 
             return result.Succeeded;

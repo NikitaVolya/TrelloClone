@@ -21,6 +21,7 @@ namespace DAL.Repositories
             return await _context.Projects
                 .Include(p => p.Boards)
                 .Include(p => p.Members)
+                .ThenInclude(m => m.Member)
                 .Include(p => p.Invitations)
                 .Include(p => p.Owner)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -67,6 +68,12 @@ namespace DAL.Repositories
         public void RemoveMemberAsync(ProjectMember projectMember)
         {
             _context.ProjectMembers.Remove(projectMember);
+        }
+        public async Task<List<ProjectMember>> GetProjectMembers(int projectId)
+        {
+            return await _context.ProjectMembers
+                .Include(pm => pm.Member)
+                .Where(pm => pm.ProjectId == projectId).ToListAsync();
         }
     }
 }

@@ -12,14 +12,13 @@
             <small class="text-muted">Створено: @Model.CreatedAt.ToString("dd.MM.yyyy")</small>
         </div>
         <div>
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#inviteUserModal">Запросити користувача</button>
             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createColumnModal">+ Додати колонку</button>
         </div>
     </div>
 
     <!-- Kanban Board -->
     <div class="row flex-nowrap overflow-auto" id="kanban-board" style="min-height: 70vh;">
-        @foreach (var column in Model.Columns)
+        @foreach (var column in Model.Columns.OrderBy(c => c.Order))
         {
             <div class="col-md-3 mb-3 column-container" draggable="true" data-column-id="@column.Id" data-column-order="@column.Order">
                 <div class="card">
@@ -72,12 +71,53 @@
                                             <p>@(task.Deadline.HasValue ? task.Deadline.Value.ToString("dd.MM.yyyy HH:mm") : "Не встановлено")</p>
 
                                             <h6>Виконавці:</h6>
-                                            <ul>
-                                                @foreach (var assignee in task.Assignees)
+                                            <div class="mb-3">
+                                                @if (task.Assignees.Any())
                                                 {
-                                                    <li>Користувач: @assignee.UserId</li>
+                                                    <ul class="list-group mb-2">
+                                                        @foreach (var assignee in task.Assignees)
+                                                        {
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                Користувач: @assignee.User.UserName
+                                                                <form asp-controller="Task" asp-action="RemoveAssignee" method="post" class="d-inline">
+                                                                    <input type="hidden" name="taskId" value="@task.Id" />
+                                                                    <input type="hidden" name="userId" value="@assignee.UserId" />
+                                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Видалити</button>
+                                                                </form>
+                                                            </li>
+                                                        }
+                                                    </ul>
                                                 }
-                                            </ul>
+                                                else
+                                                {
+                                                    <p class="text-muted">Виконавці не призначені</p>
+                                                }
+
+                                                <form asp-controller="Task" asp-action="AssignUser" method="post" class="d-flex gap-2">
+                                                    <input type="hidden" name="taskId" value="@task.Id" />
+                                                    @{
+                                                        var projectMembers = ViewBag.ProjectMembers as List<Domain.Projects.ProjectMember> ?? new List<Domain.Projects.ProjectMember>();
+                                                    }
+                                                    @if (projectMembers.Any())
+                                                    {
+                                                        <select class="form-select form-select-sm" name="userId" required>
+                                                            <option value="">Оберіть користувача</option>
+                                                            @foreach (var member in projectMembers)
+                                                            {
+                                                                if (!task.Assignees.Any(a => a.UserId == member.MemberId))
+                                                                {
+                                                                    <option value="@member.MemberId">@member.Member.UserName</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                        <button type="submit" class="btn btn-sm btn-success">Призначити</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-muted">Немає доступних учасників для призначення</p>
+                                                    }
+                                                </form>
+                                            </div>
 
                                             <h6>Коментарі:</h6>
                                             <div class="mb-3">
@@ -90,7 +130,7 @@
                                                     @foreach (var comment in currentTaskComments)
                                                     {
                                                         <div class="mb-2 p-2 border rounded">
-                                                            <small class="text-muted">@comment.SenderId - @comment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                                            <small class="text-muted">@comment.Sender?.UserName - @comment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
                                                             <p class="mb-0">@comment.Text</p>
                                                         </div>
                                                     }
@@ -103,7 +143,6 @@
 
                                             <form asp-controller="Task" asp-action="AddComment" method="post">
                                                 <input type="hidden" name="taskId" value="@task.Id" />
-                                                <input type="hidden" name="senderId" value="current-user" />
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" name="text" placeholder="Додати коментар..." required />
                                                     <button type="submit" class="btn btn-primary">Відправити</button>
@@ -214,31 +253,6 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
                     <button type="submit" class="btn btn-primary">Створити</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Invite User Modal -->
-<div class="modal fade" id="inviteUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-controller="Board" asp-action="InviteUser" method="post">
-                <input type="hidden" name="boardId" value="@Model.Id" />
-                <div class="modal-header">
-                    <h5 class="modal-title">Запросити користувача</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">User ID</label>
-                        <input type="text" class="form-control" name="userId" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                    <button type="submit" class="btn btn-primary">Відправити запрошення</button>
                 </div>
             </form>
         </div>
@@ -370,7 +384,7 @@
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `boardId=${boardId}&columnId=${draggedColumnId}&newOrder=${newOrder}`
+                    body: `columnId=${draggedColumnId}&newOrder=${newOrder}`
                 })
                 .then(response => response.json())
                 .then(data => {

@@ -63,5 +63,20 @@ namespace DAL.Repositories
         {
             _context.Tasks.Remove(task);
         }
+
+        public async Task<Domain.Tasks.TaskAssignee?> GetTaskAssigneeAsync(int taskId, string userId)
+        {
+            return await _context.TaskAssignees.FirstOrDefaultAsync(ta => ta.TaskId == taskId && ta.UserId == userId);
+        }
+
+        public async Task AddTaskAssigneeAsync(Domain.Tasks.TaskAssignee taskAssignee)
+        {
+            await _context.TaskAssignees.AddAsync(taskAssignee);
+        }
+
+        public void RemoveTaskAssigneAsync(Domain.Tasks.TaskAssignee taskAssignee)
+        {
+            _context.TaskAssignees.Remove(taskAssignee);
+        }
     }
 }

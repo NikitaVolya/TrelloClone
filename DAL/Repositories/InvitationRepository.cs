@@ -15,6 +15,14 @@ namespace DAL.Repositories
             _context = context;
         }
 
+        public async Task<Invitation?> GetInvitationByIdAsync(int invitationId)
+        {
+            return await _context.Invitations
+                .Include(inv => inv.User)
+                .Include(inv => inv.Project)
+                .FirstOrDefaultAsync(inv => inv.Id == invitationId);
+        }
+
         public async Task<Invitation?> GetAsync(int projectId, string userId)
         {
             return await _context.Invitations
@@ -27,6 +35,8 @@ namespace DAL.Repositories
         public async Task<List<Invitation>> GetUserInvitationsAsync(string userId)
         {
             return await _context.Invitations
+                .Include(inv => inv.User)
+                .Include(inv => inv.Project)
                 .Where(inv => inv.UserId == userId)
                 .ToListAsync();
         }

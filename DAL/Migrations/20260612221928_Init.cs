@@ -203,15 +203,16 @@ namespace DAL.Migrations
                 name: "Invitations",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Invitations", x => new { x.ProjectId, x.UserId });
+                    table.PrimaryKey("PK_Invitations", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Invitations_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -403,6 +404,11 @@ namespace DAL.Migrations
                 name: "IX_Columns_BoardId",
                 table: "Columns",
                 column: "BoardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Invitations_ProjectId",
+                table: "Invitations",
+                column: "ProjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Invitations_UserId",

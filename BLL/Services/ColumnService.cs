@@ -41,10 +41,13 @@ namespace BLL.Services
             if (board.Project.OwnerId != userId && member == null)
                 throw new UnauthorizedAccessException("User has no access to this board");
 
+            List<Column> columns = await _columnRepository.GetBoardColumnsAsync(boardId);
+
             var column = new Column
             {
                 Name = name,
-                BoardId = boardId
+                BoardId = boardId,
+                Order = columns.Count()
             };
 
             await _columnRepository.AddAsync(column);
@@ -74,6 +77,41 @@ namespace BLL.Services
                 ?? throw new ArgumentException("Column not found");
 
             _columnRepository.Delete(column);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task ChangeOrder(int columnId, int newOrder)
+        {
+            Column? column = await GetColumnByIdAsync(columnId);
+            if (column == null)
+                throw new InvalidOperationException("Column does not exist.");
+
+            IEnumerable<Column> boardColumns = await GetColumnsForBoardAsync(column.BoardId);
+
+            int oldOrder = column.Order;
+
+            boardColumns = boardColumns.Where(c => c.Order >= newOrder && c.Order < oldOrder);
+
+            foreach (Column boardColumn in boardColumns)
+            {
+                boardColumn.Order += (newOrder < oldOrder ? 1 : -1);
+            }
+
+            column.Order = newOrder;
+
+            _columnRepository.Update(boardColumns);
+            _columnRepository.Update(column);
+            await _unitOfWork.SaveChangesAsync();
+
+        }
+
+        public async Task SetColumnColor(int columnId, string hexColor)
+        {
+            Column? column = await GetColumnByIdAsync(columnId);
+            if (column == null)
+                throw new InvalidOperationException("Column does not exist.");
+
+            column.hexColor = hexColor;
+            _columnRepository.Update(column);
             await _unitOfWork.SaveChangesAsync();
         }
     }

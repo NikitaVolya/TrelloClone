@@ -1,10 +1,10 @@
 ﻿using Domain.Projects;
-using Domain.Boards;
 using Microsoft.AspNetCore.Mvc;
 using BLL.Services.Interface;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
+using Domain.Common;
 
 
 
@@ -14,52 +14,14 @@ namespace MVC.Controllers
     public class ProjectController : Controller
     {
         private readonly IProjectService _projectService;
+        private readonly IUserService _userService;
+        private readonly IInvitationService _invitationService;
 
-        public static readonly List<Project> MockProjects = new List<Project>
-        {
-            new Project
-            {
-                Id = 1,
-                Title = "Project A",
-                Description = "Description of Project A",
-                OwnerId = "user1",
-                CreatedAt = DateTime.Now.AddDays(-10),
-                Boards = new List<Board>()
-                {
-                    new Board { Id = 1, Title = "Board 1", CreatedAt = DateTime.Now.AddDays(-8) },
-                    new Board { Id = 2, Title = "Board 2", CreatedAt = DateTime.Now.AddDays(-5) }
-                },
-                Members = new List<ProjectMember>()
-                {
-                    new ProjectMember { MemberId = "user2", ProjectId = 1, JoinedAt = DateTime.Now.AddDays(-9) },
-                    new ProjectMember { MemberId = "user3", ProjectId = 1, JoinedAt = DateTime.Now.AddDays(-5) }
-                },
-                Invitations = new List<Invitation>()
-                {
-                    new Invitation { Id = 1, UserId = "user4", ProjectId = 1, CreatedAt = DateTime.Now.AddDays(-2), Status = InvitationStatus.Pending },
-                    new Invitation { Id = 2, UserId = "user5", ProjectId = 1, CreatedAt = DateTime.Now.AddDays(-3), Status = InvitationStatus.Declined }
-                }
-            },
-            new Project
-            {
-                Id = 2,
-                Title = "Project B",
-                Description = "Description of Project B",
-                OwnerId = "user1",
-                CreatedAt = DateTime.Now.AddDays(-2),
-                Boards = new List<Board>()
-                {
-                    new Board { Id = 5, Title = "Board 5", CreatedAt = DateTime.Now.AddDays(-1) }
-                },
-                Members = new List<ProjectMember>(),
-                Invitations = new List<Invitation>()
-            }
-        };
-
-
-        public ProjectController(IProjectService projectService)
+        public ProjectController(IProjectService projectService, IUserService userService, IInvitationService invitationService)
         {
             _projectService = projectService;
+            _userService = userService;
+            _invitationService = invitationService;
         }
 
         public async Task<ActionResult> AllProjects()
@@ -68,6 +30,7 @@ namespace MVC.Controllers
 
             List<Project> projects = await _projectService.GetUserProjectsAsync(userId);
 
+            ViewData["h2"] = "Усі проекти";
             return View("Index", projects);
         }
 
@@ -75,16 +38,22 @@ namespace MVC.Controllers
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            List<Project> projects = await _projectService.GetUserProjectsAsync(userId);
+            List<Project> projects = await _projectService.GetOwnerProjectsAsync(userId);
 
+            ViewData["h2"] = "Мої проекти";
             return View(projects);
         }
 
-        public ActionResult Detail(int id) { 
-            var project = MockProjects.FirstOrDefault(p => p.Id == id);
+        public async Task<ActionResult> Detail(int id) { 
+            Project? project = await _projectService.GetByIdAsync(id);
             if (project == null) { 
                 return NotFound( new{ message = "Проект не найдено" });
             }
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "user1";
+            ViewBag.IsOwner = project.OwnerId == currentUserId;
+            ViewBag.CurrentUserId = currentUserId;
+
             return View(project);
         }
 
@@ -106,9 +75,9 @@ namespace MVC.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddMember(int projectId, string userId)
+        public async Task<ActionResult> AddMember(int projectId, string userId)
         {
-            var project = MockProjects.FirstOrDefault(p => p.Id == projectId);
+            Project? project = await _projectService.GetByIdAsync(projectId);
             if (project == null)
             {
                 return NotFound(new { message = "Проект не знайдено" });
@@ -128,44 +97,35 @@ namespace MVC.Controllers
         }
 
         [HttpPost]
-        public ActionResult RemoveMember(int projectId, string userId)
+        public async Task<ActionResult> RemoveMember(int projectId, string userId)
         {
-            var project = MockProjects.FirstOrDefault(p => p.Id == projectId);
+            Project? project = await _projectService.GetByIdAsync(projectId);
             if (project == null)
             {
                 return NotFound(new { message = "Проект не знайдено" });
             }
-
-            var member = project.Members.FirstOrDefault(m => m.MemberId == userId);
-            if (member != null)
-            {
-                project.Members.Remove(member);
-            }
+            
+            await _projectService.RemoveMemberAsync(projectId, userId);
 
             return RedirectToAction("Detail", new { id = projectId });
         }
 
         [HttpPost]
-        public ActionResult SendInvitation(int projectId, string userId)
+        public async Task<ActionResult> SendInvitation(int projectId, string userEmail)
         {
-            var project = MockProjects.FirstOrDefault(p => p.Id == projectId);
+            Project? project = await _projectService.GetByIdAsync(projectId);
             if (project == null)
             {
                 return NotFound(new { message = "Проект не знайдено" });
             }
 
-            if (!project.Invitations.Any(i => i.UserId == userId && i.Status == InvitationStatus.Pending))
+            ApplicationUser? user = await _userService.GetByEmailAsync(userEmail);
+            if (user == null)
             {
-                var newInvitation = new Invitation
-                {
-                    Id = MockProjects.SelectMany(p => p.Invitations).Count() + 1,
-                    UserId = userId,
-                    ProjectId = projectId,
-                    CreatedAt = DateTime.Now,
-                    Status = InvitationStatus.Pending
-                };
-                project.Invitations.Add(newInvitation);
+                return NotFound(new { message = "Користувач з такою поштою не існує" });
             }
+
+            await _invitationService.InviteUserAsync(projectId, project.OwnerId, user.Id);
 
             return RedirectToAction("Detail", new { id = projectId });
         }

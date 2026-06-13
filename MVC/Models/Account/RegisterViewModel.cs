@@ -15,6 +15,10 @@ namespace MVC.Models.Account
         [Required(ErrorMessage = "Введіть пароль")]
         [MinLength(6)]
         [DataType(DataType.Password)]
+        [RegularExpression(
+            @"^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).+$",
+            ErrorMessage = "Пароль повинен містити хоча б одну велику літеру та один спеціальний символ"
+        )]
         public string Password { get; set; } = null!;
 
         [Required(ErrorMessage = "Підтвердіть пароль")]

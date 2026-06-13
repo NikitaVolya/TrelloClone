@@ -5,6 +5,7 @@ namespace DAL.Repositories.Interfaces
 {
     public interface IInvitationRepository
     {
+        Task<Invitation?> GetInvitationByIdAsync(int id);
         Task<Invitation?> GetAsync(
             int projectId,
             string userId);

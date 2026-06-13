@@ -1,135 +1,58 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Domain.Boards;
-using Domain.Projects;
-using Domain.Tasks;
+using BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace MVC.Controllers
 {
+    [Authorize]
     public class BoardController : Controller
     {
-        public static readonly List<Board> MockBoards = new List<Board>
-        {
-            new Board
-            {
-                Id = 1,
-                Title = "Development Board",
-                CreatedAt = DateTime.Now.AddDays(-10),
-                ProjectId = 1,
-                Columns = new List<Column>
-                {
-                    new Column { Id = 1, Name = "To Do", hexColor = "#FF5733", BoardId = 1, Order = 0 },
-                    new Column { Id = 2, Name = "In Progress", hexColor = "#33FF57", BoardId = 1, Order = 1 },
-                    new Column { Id = 3, Name = "Done", hexColor = "#3357FF", BoardId = 1, Order = 2 }
-                },
-                Tasks = new List<Domain.Tasks.Task>
-                {
-                    new Domain.Tasks.Task { Id = 1, Name = "Task 1", Description = "Description 1", ColumnId = 1, BoardId = 1, CratedAt = DateTime.Now.AddDays(-5) },
-                    new Domain.Tasks.Task { Id = 2, Name = "Task 2", Description = "Description 2", ColumnId = 2, BoardId = 1, CratedAt = DateTime.Now.AddDays(-3) }
-                }
-            },
-            new Board
-            {
-                Id = 2,
-                Title = "Marketing Board",
-                CreatedAt = DateTime.Now.AddDays(-5),
-                ProjectId = 1,
-                Columns = new List<Column>
-                {
-                    new Column { Id = 4, Name = "Backlog", hexColor = "#FFC300", BoardId = 2, Order = 0 },
-                    new Column { Id = 5, Name = "Active", hexColor = "#DAF7A6", BoardId = 2, Order = 1 }
-                },
-                Tasks = new List<Domain.Tasks.Task>()
-            }
-        };
+        private readonly IBoardService _boardService;
+        private readonly IProjectService _projectService;
 
-        private static readonly List<Invitation> MockInvitations = new List<Invitation>();
-
-        public IActionResult Details(int id)
+        public BoardController(IBoardService boardService, IProjectService projectService)
         {
-            var board = MockBoards.FirstOrDefault(b => b.Id == id);
+            _boardService = boardService;
+            _projectService = projectService;
+        }
+
+
+        public async Task<IActionResult> Details(int id)
+        {
+            Board? board = await _boardService.GetBoardByIdAsync(id);
+
             if (board == null)
             {
                 return NotFound(new { message = "Дошка не знайдена" });
             }
 
-            board.Columns = board.Columns.OrderBy(c => c.Order).ToList();
-
-            ViewBag.Comments = TaskController.MockComments;
-
+            ViewBag.Comments = await _boardService.GetBoardTaskComments(id);
+            ViewBag.ProjectMembers = await _projectService.GetProjectMembers(board.ProjectId);
             return View(board);
         }
 
         [HttpPost]
-        public IActionResult Create(Board newBoard)
+        public async Task<IActionResult> Create(Board newBoard)
         {
-            newBoard.Id = MockBoards.Count + 1;
-            newBoard.CreatedAt = DateTime.Now;
-            newBoard.Columns = new List<Column>();
-            newBoard.Tasks = new List<Domain.Tasks.Task>();
-            MockBoards.Add(newBoard);
+            Board board = await _boardService.CreateBoardAsync(newBoard.Title, newBoard.ProjectId);
 
-            var project = ProjectController.MockProjects.FirstOrDefault(p => p.Id == newBoard.ProjectId);
-            if (project != null)
-            {
-                project.Boards.Add(newBoard);
-            }
-
-            return RedirectToAction("Detail", "Project", new { id = newBoard.ProjectId });
+            return RedirectToAction("Detail", "Project", new { id = board.ProjectId });
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var board = MockBoards.FirstOrDefault(b => b.Id == id);
+            Board? board = await _boardService.GetBoardByIdAsync(id);
             if (board == null)
             {
                 return NotFound(new { message = "Дошка не знайдена" });
             }
-
-            var projectId = board.ProjectId;
-
-            MockBoards.Remove(board);
-
-            var project = ProjectController.MockProjects.FirstOrDefault(p => p.Id == projectId);
-            if (project != null)
-            {
-                var projectBoard = project.Boards.FirstOrDefault(b => b.Id == id);
-                if (projectBoard != null)
-                {
-                    project.Boards.Remove(projectBoard);
-                }
-            }
+            int projectId = board.ProjectId;
+            await _boardService.DeleteBoardAsync(projectId);
 
             return RedirectToAction("Detail", "Project", new { id = projectId });
-        }
-
-        [HttpPost]
-        public IActionResult InviteUser(int boardId, string userId)
-        {
-            var board = MockBoards.FirstOrDefault(b => b.Id == boardId);
-            if (board == null)
-            {
-                return NotFound(new { message = "Дошка не знайдена" });
-            }
-
-            var project = ProjectController.MockProjects.FirstOrDefault(p => p.Boards.Any(b => b.Id == boardId));
-            if (project == null)
-            {
-                return NotFound(new { message = "Проект не знайдено" });
-            }
-
-            var invitation = new Invitation
-            {
-                Id = MockInvitations.Count + 1,
-                UserId = userId,
-                ProjectId = project.Id,
-                CreatedAt = DateTime.Now,
-                Status = InvitationStatus.Pending
-            };
-
-            MockInvitations.Add(invitation);
-            project.Invitations.Add(invitation);
-            return Ok(new { message = "Запрошення надіслано", invitation });
         }
     }
 }

@@ -9,5 +9,7 @@ namespace BLL.Services.Interface
         Task<IEnumerable<Column>> GetColumnsForBoardAsync(int boardId);
         Task UpdateColumnAsync(int columnId, string name);
         Task DeleteColumnAsync(int columnId);
+        Task ChangeOrder(int columnId, int order);
+        Task SetColumnColor(int columnId, string hexColor);
     }
 }
