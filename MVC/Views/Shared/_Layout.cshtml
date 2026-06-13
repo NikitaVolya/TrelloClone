@@ -63,10 +63,6 @@
             <!-- NAVIGATION -->
             <div class="sidebar-section-title">Навігація</div>
 
-            <a class="sidebar-item" asp-controller="Dashboard" asp-action="Index">
-                Дашборд
-            </a>
-
             <a class="sidebar-item @(controller == "Notification" && action == "Index" ? "active" : "")" asp-controller="Notification" asp-action="Index">
                 Повідомлення
             </a>

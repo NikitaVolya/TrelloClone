@@ -40,7 +40,7 @@ namespace MVC.Controllers
                 return View(model);
             }
 
-            await _authService.LoginAsync(model.Email, model.Password);
+            await _authService.LoginAsync(model.Email, model.Password, false);
 
             TempData["Success"] = "Реєстрація успішна";
 
@@ -63,7 +63,8 @@ namespace MVC.Controllers
 
             bool success = await _authService.LoginAsync(
                 model.Email,
-                model.Password);
+                model.Password,
+                model.RememberMe);
 
             if (!success)
             {

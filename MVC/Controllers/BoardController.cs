@@ -27,6 +27,7 @@ namespace MVC.Controllers
                 return NotFound(new { message = "Дошка не знайдена" });
             }
 
+            ViewBag.Comments = await _boardService.GetBoardTaskComments(id);
             return View(board);
         }
 

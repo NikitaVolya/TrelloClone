@@ -30,6 +30,7 @@ namespace MVC.Controllers
 
             List<Project> projects = await _projectService.GetUserProjectsAsync(userId);
 
+            ViewData["h2"] = "Усі проекти";
             return View("Index", projects);
         }
 
@@ -39,6 +40,7 @@ namespace MVC.Controllers
 
             List<Project> projects = await _projectService.GetOwnerProjectsAsync(userId);
 
+            ViewData["h2"] = "Мої проекти";
             return View(projects);
         }
 

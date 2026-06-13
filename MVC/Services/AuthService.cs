@@ -40,7 +40,8 @@ namespace MVC.Services
 
         public async Task<bool> LoginAsync(
             string email,
-            string password)
+            string password,
+            bool rememberMe)
         {
             ApplicationUser? user =
                 await _userManager.FindByEmailAsync(email);
@@ -52,7 +53,7 @@ namespace MVC.Services
                 await _signInManager.PasswordSignInAsync(
                     user,
                     password,
-                    isPersistent: false,
+                    rememberMe,
                     lockoutOnFailure: false);
 
             return result.Succeeded;
