@@ -21,6 +21,7 @@ namespace DAL.Repositories
                 .Include(b => b.Columns)
                 .Include(b => b.Project)
                 .Include(b => b.Tasks)
+                .ThenInclude(t => t.Assignees)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

@@ -2,7 +2,6 @@
 using Domain.Boards;
 using BLL.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Domain.Projects;
 
 
 namespace MVC.Controllers
@@ -11,10 +10,12 @@ namespace MVC.Controllers
     public class BoardController : Controller
     {
         private readonly IBoardService _boardService;
+        private readonly IProjectService _projectService;
 
-        public BoardController(IBoardService boardService)
+        public BoardController(IBoardService boardService, IProjectService projectService)
         {
             _boardService = boardService;
+            _projectService = projectService;
         }
 
 
@@ -28,6 +29,7 @@ namespace MVC.Controllers
             }
 
             ViewBag.Comments = await _boardService.GetBoardTaskComments(id);
+            ViewBag.ProjectMembers = await _projectService.GetProjectMembers(board.ProjectId);
             return View(board);
         }
 

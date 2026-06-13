@@ -159,5 +159,9 @@ namespace BLL.Services
             return member != null;
         }
 
+        public async Task<List<ProjectMember>> GetProjectMembers(int projectId)
+        {
+            return await _projectRepository.GetProjectMembers(projectId);
+        }
     }
 }

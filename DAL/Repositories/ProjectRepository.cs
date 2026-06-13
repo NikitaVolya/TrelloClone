@@ -69,5 +69,11 @@ namespace DAL.Repositories
         {
             _context.ProjectMembers.Remove(projectMember);
         }
+        public async Task<List<ProjectMember>> GetProjectMembers(int projectId)
+        {
+            return await _context.ProjectMembers
+                .Include(pm => pm.Member)
+                .Where(pm => pm.ProjectId == projectId).ToListAsync();
+        }
     }
 }

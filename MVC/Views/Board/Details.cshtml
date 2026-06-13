@@ -78,7 +78,7 @@
                                                         @foreach (var assignee in task.Assignees)
                                                         {
                                                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                Користувач: @assignee.UserId
+                                                                Користувач: @assignee.User.UserName
                                                                 <form asp-controller="Task" asp-action="RemoveAssignee" method="post" class="d-inline">
                                                                     <input type="hidden" name="taskId" value="@task.Id" />
                                                                     <input type="hidden" name="userId" value="@assignee.UserId" />
@@ -96,17 +96,17 @@
                                                 <form asp-controller="Task" asp-action="AssignUser" method="post" class="d-flex gap-2">
                                                     <input type="hidden" name="taskId" value="@task.Id" />
                                                     @{
-                                                        var projectMembers = ViewBag.ProjectMembers as List<string> ?? new List<string>();
+                                                        var projectMembers = ViewBag.ProjectMembers as List<Domain.Projects.ProjectMember> ?? new List<Domain.Projects.ProjectMember>();
                                                     }
                                                     @if (projectMembers.Any())
                                                     {
                                                         <select class="form-select form-select-sm" name="userId" required>
                                                             <option value="">Оберіть користувача</option>
-                                                            @foreach (var memberId in projectMembers)
+                                                            @foreach (var member in projectMembers)
                                                             {
-                                                                if (!task.Assignees.Any(a => a.UserId == memberId))
+                                                                if (!task.Assignees.Any(a => a.UserId == member.MemberId))
                                                                 {
-                                                                    <option value="@memberId">@memberId</option>
+                                                                    <option value="@member.MemberId">@member.Member.UserName</option>
                                                                 }
                                                             }
                                                         </select>

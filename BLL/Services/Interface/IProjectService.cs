@@ -27,5 +27,7 @@ namespace BLL.Services.Interface
         Task RemoveMemberAsync(int projectId, string memberId);
 
         Task<bool> CheckUserIsProjectMember(int projectId, string userId);
+
+        Task<List<ProjectMember>> GetProjectMembers(int projectId);
     }
 }

@@ -2,6 +2,7 @@
 using DAL.Repositories.Interfaces;
 using DAL.UnitOfWork.Interface;
 using Domain.Common;
+using Domain.Projects;
 using TaskEntity = Domain.Tasks.Task;
 
 namespace BLL.Services
@@ -152,6 +153,7 @@ namespace BLL.Services
             };
 
             await _taskRepository.AddTaskAssigneeAsync(assignee);
+            await _unitOfWork.SaveChangesAsync();
             return assignee;
         }
 
@@ -164,6 +166,7 @@ namespace BLL.Services
             }
 
             _taskRepository.RemoveTaskAssigneAsync(assignee);
+            await _unitOfWork.SaveChangesAsync();
         }
         public async Task SetTaskDeadline(int taskId, DateTime? deadline)
         {

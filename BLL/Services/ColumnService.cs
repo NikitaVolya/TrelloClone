@@ -103,5 +103,16 @@ namespace BLL.Services
             await _unitOfWork.SaveChangesAsync();
 
         }
+
+        public async Task SetColumnColor(int columnId, string hexColor)
+        {
+            Column? column = await GetColumnByIdAsync(columnId);
+            if (column == null)
+                throw new InvalidOperationException("Column does not exist.");
+
+            column.hexColor = hexColor;
+            _columnRepository.Update(column);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

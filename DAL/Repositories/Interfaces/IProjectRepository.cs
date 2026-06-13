@@ -14,5 +14,6 @@ namespace DAL.Repositories.Interfaces
         Task<ProjectMember?> GetMemberAsync(int projectId, string memberId);
         Task AddMemberAsync(ProjectMember projectMember);
         void RemoveMemberAsync(ProjectMember projectMember);
+        Task<List<ProjectMember>> GetProjectMembers(int projectId);
     }
 }

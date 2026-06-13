@@ -59,7 +59,7 @@ namespace MVC.Controllers
 
                 if (!string.IsNullOrWhiteSpace(hexColor))
                 {
-                    column.hexColor = hexColor;
+                    await _columnService.SetColumnColor(id, hexColor);
                 }
 
 
